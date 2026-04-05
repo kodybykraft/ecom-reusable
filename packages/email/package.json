@@ -17,6 +17,7 @@
     "clean": "rm -rf dist .turbo tsconfig.tsbuildinfo"
   },
   "dependencies": {
+    "@aws-sdk/client-sesv2": "^3.700.0",
     "@ecom/core": "workspace:*",
     "@ecom/db": "workspace:*",
     "@ecom/integrations": "workspace:*",

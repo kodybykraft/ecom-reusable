@@ -168,13 +168,68 @@ export class PayPalProvider implements PaymentProvider {
     };
   }
 
-  verifyWebhookSignature(_payload: string, _signature: string): boolean {
-    // PayPal webhook verification requires calling the PayPal API
-    // Full implementation: POST /v1/notifications/verify-webhook-signature
+  verifyWebhookSignature(payload: string, signature: string): boolean {
+    // Synchronous basic validation — real verification is async via verifyWebhookAsync.
+    if (!signature || signature.trim().length === 0) return false;
+    try {
+      JSON.parse(payload);
+    } catch {
+      return false;
+    }
     return true;
   }
 
-  async handleWebhook(event: { event_type: string; resource: Record<string, unknown> }): Promise<WebhookResult> {
+  async verifyWebhookAsync(
+    payload: string,
+    headers: {
+      transmissionId: string;
+      transmissionTime: string;
+      certUrl: string;
+      authAlgo: string;
+      transmissionSig: string;
+    },
+  ): Promise<boolean> {
+    try {
+      const body = JSON.parse(payload);
+      const result = await this.request<{ verification_status: string }>(
+        '/v1/notifications/verify-webhook-signature',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            auth_algo: headers.authAlgo,
+            cert_url: headers.certUrl,
+            transmission_id: headers.transmissionId,
+            transmission_sig: headers.transmissionSig,
+            transmission_time: headers.transmissionTime,
+            webhook_id: this.config.webhookId,
+            webhook_event: body,
+          }),
+        },
+      );
+      return result.verification_status === 'SUCCESS';
+    } catch {
+      return false;
+    }
+  }
+
+  async handleWebhook(
+    event: { event_type: string; resource: Record<string, unknown> },
+    webhookPayload?: string,
+    webhookHeaders?: {
+      transmissionId: string;
+      transmissionTime: string;
+      certUrl: string;
+      authAlgo: string;
+      transmissionSig: string;
+    },
+  ): Promise<WebhookResult> {
+    // Verify webhook signature asynchronously if headers are provided
+    if (webhookPayload && webhookHeaders) {
+      const verified = await this.verifyWebhookAsync(webhookPayload, webhookHeaders);
+      if (!verified) {
+        return { eventType: event.event_type, handled: false, data: { error: 'Invalid webhook signature' } };
+      }
+    }
     switch (event.event_type) {
       case 'PAYMENT.CAPTURE.COMPLETED':
         return { eventType: event.event_type, handled: true, data: { captureId: event.resource.id } };

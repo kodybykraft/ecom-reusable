@@ -1,5 +1,5 @@
 /** All money values are stored as integer cents to avoid floating-point issues */
-export type Money = number;
+export type Money = number & { __brand?: 'Money' };
 
 export interface PaginatedResult<T> {
   data: T[];

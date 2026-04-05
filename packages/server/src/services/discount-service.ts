@@ -2,7 +2,7 @@ import { eq, desc, sql } from 'drizzle-orm';
 import { discounts, discountUsages } from '@ecom/db';
 import type { Database } from '@ecom/db';
 import type { CreateDiscountInput, PaginationInput } from '@ecom/core';
-import { NotFoundError } from '@ecom/core';
+import { NotFoundError, DiscountError } from '@ecom/core';
 import { eventBus } from '../events/event-bus.js';
 
 export class DiscountService {
@@ -78,6 +78,11 @@ export class DiscountService {
   }
 
   async recordUsage(discountId: string, orderId: string, customerId: string | null) {
+    const discount = await this.getById(discountId);
+    if (discount.usageLimit !== null && discount.usageCount >= discount.usageLimit) {
+      throw new DiscountError('Discount usage limit has been reached');
+    }
+
     await this.db.insert(discountUsages).values({
       discountId,
       orderId,

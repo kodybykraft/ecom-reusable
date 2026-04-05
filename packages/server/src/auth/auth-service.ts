@@ -4,19 +4,50 @@ import type { Database } from '@ecom/db';
 import { UnauthorizedError, ValidationError } from '@ecom/core';
 import type { User } from '../context.js';
 
-// Simple hash for dev — in production use bcrypt/argon2 via integration adapter
-async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hash = await crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(hash))
+function toHex(buffer: ArrayBufferLike): string {
+  return Array.from(new Uint8Array(buffer))
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
 }
 
+function fromHex(hex: string): Uint8Array {
+  const bytes = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < hex.length; i += 2) {
+    bytes[i / 2] = parseInt(hex.substring(i, i + 2), 16);
+  }
+  return bytes;
+}
+
+async function deriveKey(password: string, salt: Uint8Array): Promise<ArrayBuffer> {
+  const encoder = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(password),
+    'PBKDF2',
+    false,
+    ['deriveBits'],
+  );
+  return crypto.subtle.deriveBits(
+    { name: 'PBKDF2', salt: salt as BufferSource, iterations: 100_000, hash: 'SHA-256' },
+    keyMaterial,
+    256,
+  );
+}
+
+async function hashPassword(password: string): Promise<string> {
+  const salt = new Uint8Array(16);
+  crypto.getRandomValues(salt);
+  const derived = await deriveKey(password, salt);
+  return `${toHex(salt.buffer)}:${toHex(derived)}`;
+}
+
 async function verifyPassword(password: string, hash: string): Promise<boolean> {
-  const computed = await hashPassword(password);
-  return computed === hash;
+  const [saltHex, derivedHex] = hash.split(':');
+  if (!saltHex || !derivedHex) return false;
+  const salt = fromHex(saltHex);
+  const derived = await deriveKey(password, salt);
+  const computed = toHex(derived);
+  return computed === derivedHex;
 }
 
 function generateToken(): string {

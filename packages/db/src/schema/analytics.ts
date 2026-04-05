@@ -1,4 +1,4 @@
-import { pgTable, text, varchar, integer, numeric, jsonb, timestamp, index } from 'drizzle-orm/pg-core';
+import { pgTable, text, varchar, integer, numeric, jsonb, timestamp, date, index } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { customers } from './customers.js';
 import { orders } from './orders.js';
@@ -65,7 +65,7 @@ export const analyticsDailyAggregates = pgTable(
     id: text('id')
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
-    date: timestamp('date').notNull(),
+    date: date('date').notNull(),
     metricKey: varchar('metric_key', { length: 100 }).notNull(), // e.g. "revenue.total", "orders.count"
     dimensions: jsonb('dimensions'), // e.g. { channel: "organic", productId: "..." }
     value: numeric('value', { precision: 20, scale: 4 }).notNull(),

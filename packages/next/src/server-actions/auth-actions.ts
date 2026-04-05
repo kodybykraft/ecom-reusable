@@ -1,3 +1,5 @@
+'use server';
+
 import { getEcom } from '../create-ecom.js';
 
 export async function login(email: string, password: string) {

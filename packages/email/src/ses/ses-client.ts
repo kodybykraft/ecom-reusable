@@ -1,3 +1,5 @@
+import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2';
+
 export interface SesConfig {
   accessKeyId: string;
   secretAccessKey: string;
@@ -7,16 +9,19 @@ export interface SesConfig {
 }
 
 /**
- * SES email sender using the AWS SES v2 REST API.
- * No SDK dependency — uses fetch directly for portability.
- *
- * In production, you may swap this with @aws-sdk/client-sesv2.
+ * SES email sender using the AWS SES v2 SDK.
  */
 export class SesClient {
-  private endpoint: string;
+  private client: SESv2Client;
 
   constructor(private config: SesConfig) {
-    this.endpoint = `https://email.${config.region}.amazonaws.com`;
+    this.client = new SESv2Client({
+      region: config.region,
+      credentials: {
+        accessKeyId: config.accessKeyId,
+        secretAccessKey: config.secretAccessKey,
+      },
+    });
   }
 
   async sendEmail(input: {
@@ -29,9 +34,7 @@ export class SesClient {
   }): Promise<{ messageId: string }> {
     const recipients = Array.isArray(input.to) ? input.to : [input.to];
 
-    // In a real implementation, this would use AWS SigV4 signing.
-    // For now, this is a structural placeholder that shows the correct API shape.
-    const body = {
+    const command = new SendEmailCommand({
       Content: {
         Simple: {
           Subject: { Data: input.subject },
@@ -46,13 +49,11 @@ export class SesClient {
         ? `${this.config.fromName} <${this.config.fromEmail}>`
         : this.config.fromEmail,
       ...(input.replyTo ? { ReplyToAddresses: [input.replyTo] } : {}),
-    };
+    });
 
-    // Placeholder — real implementation needs AWS SigV4 signing
-    // For actual use: import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2'
-    const messageId = `ses-${crypto.randomUUID()}`;
+    const result = await this.client.send(command);
 
-    return { messageId };
+    return { messageId: result.MessageId ?? crypto.randomUUID() };
   }
 
   async sendBulk(inputs: Array<{
@@ -61,18 +62,16 @@ export class SesClient {
     html: string;
     text?: string;
   }>): Promise<Array<{ to: string; messageId: string; error?: string }>> {
-    // SES supports batch sending via SendBulkEmail
-    // This is a sequential fallback; production should use the bulk API
-    const results = [];
-    for (const input of inputs) {
-      try {
-        const { messageId } = await this.sendEmail(input);
-        results.push({ to: input.to, messageId });
-      } catch (err) {
-        results.push({ to: input.to, messageId: '', error: String(err) });
+    const settled = await Promise.allSettled(
+      inputs.map((input) => this.sendEmail(input).then((r) => ({ to: input.to, ...r }))),
+    );
+
+    return settled.map((result, i) => {
+      if (result.status === 'fulfilled') {
+        return { to: result.value.to, messageId: result.value.messageId };
       }
-    }
-    return results;
+      return { to: inputs[i].to, messageId: '', error: String(result.reason) };
+    });
   }
 
   getConfig() {

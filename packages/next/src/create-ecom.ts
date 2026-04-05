@@ -1,5 +1,6 @@
 import { createDb } from '@ecom/db';
 import type { Database } from '@ecom/db';
+import { EcomError } from '@ecom/core';
 import {
   AuthService,
   ProductService,
@@ -30,12 +31,23 @@ export interface Ecom {
 }
 
 let instance: Ecom | null = null;
+let instanceUrl: string | null = null;
 
 export function createEcom(config: EcomConfig): Ecom {
-  if (instance) return instance;
+  if (instance) {
+    if (instanceUrl !== config.databaseUrl) {
+      throw new EcomError(
+        'createEcom() already initialized with a different database URL. Use getEcom() to retrieve the existing instance.',
+        'ALREADY_INITIALIZED',
+        500,
+      );
+    }
+    return instance;
+  }
 
   const db = createDb(config.databaseUrl);
 
+  instanceUrl = config.databaseUrl;
   instance = {
     db,
     auth: new AuthService(db),
@@ -53,6 +65,6 @@ export function createEcom(config: EcomConfig): Ecom {
 }
 
 export function getEcom(): Ecom {
-  if (!instance) throw new Error('Ecom not initialized. Call createEcom() first.');
+  if (!instance) throw new EcomError('Ecom not initialized. Call createEcom() first.', 'NOT_INITIALIZED', 500);
   return instance;
 }

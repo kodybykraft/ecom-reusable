@@ -2,7 +2,7 @@ import { eq, like, and, gte, lte, sql, desc, asc, inArray } from 'drizzle-orm';
 import { products, productVariants, productImages, productOptions, productCategories, collectionProducts } from '@ecom/db';
 import type { Database } from '@ecom/db';
 import type { ProductFilter, PaginationInput, SortInput, CreateProductInput } from '@ecom/core';
-import { NotFoundError, slugify, uniqueSlug } from '@ecom/core';
+import { NotFoundError, slugify, uniqueSlug, escapeLike } from '@ecom/core';
 import { eventBus } from '../events/event-bus.js';
 
 export class ProductService {
@@ -15,7 +15,7 @@ export class ProductService {
 
     const conditions = [];
     if (filter?.status) conditions.push(eq(products.status, filter.status));
-    if (filter?.search) conditions.push(like(products.title, `%${filter.search}%`));
+    if (filter?.search) conditions.push(like(products.title, `%${escapeLike(filter.search)}%`));
 
     const where = conditions.length > 0 ? and(...conditions) : undefined;
 

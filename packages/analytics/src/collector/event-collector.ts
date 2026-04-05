@@ -7,27 +7,29 @@ export class EventCollector {
   constructor(private db: Database) {}
 
   async track(event: AnalyticsEvent): Promise<void> {
-    await this.db.insert(analyticsEvents).values({
-      eventName: event.eventName,
-      sessionId: event.sessionId,
-      visitorId: event.visitorId,
-      customerId: event.customerId ?? null,
-      properties: event.properties ?? null,
-      pageUrl: event.pageUrl ?? null,
-      referrer: event.referrer ?? null,
-      userAgent: event.userAgent ?? null,
-      ipAddress: event.ipAddress ?? null,
-    });
+    await Promise.all([
+      this.db.insert(analyticsEvents).values({
+        eventName: event.eventName,
+        sessionId: event.sessionId,
+        visitorId: event.visitorId,
+        customerId: event.customerId ?? null,
+        properties: event.properties ?? null,
+        pageUrl: event.pageUrl ?? null,
+        referrer: event.referrer ?? null,
+        userAgent: event.userAgent ?? null,
+        ipAddress: event.ipAddress ?? null,
+      }),
 
-    // Update session event count
-    await this.db
-      .update(analyticsSessions)
-      .set({
-        eventsCount: sql`${analyticsSessions.eventsCount} + 1`,
-        endedAt: new Date(),
-        ...(event.eventName === 'page_view' ? { pageCount: sql`${analyticsSessions.pageCount} + 1` } : {}),
-      })
-      .where(eq(analyticsSessions.id, event.sessionId));
+      // Update session event count
+      this.db
+        .update(analyticsSessions)
+        .set({
+          eventsCount: sql`${analyticsSessions.eventsCount} + 1`,
+          endedAt: new Date(),
+          ...(event.eventName === 'page_view' ? { pageCount: sql`${analyticsSessions.pageCount} + 1` } : {}),
+        })
+        .where(eq(analyticsSessions.id, event.sessionId)),
+    ]);
   }
 
   async trackBatch(events: AnalyticsEvent[]): Promise<void> {

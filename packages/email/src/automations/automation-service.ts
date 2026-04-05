@@ -1,15 +1,27 @@
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc, sql } from 'drizzle-orm';
 import { emailAutomations, emailAutomationSteps, emailAutomationEnrollments } from '@ecom/db';
 import type { Database } from '@ecom/db';
 
 export class AutomationService {
   constructor(private db: Database) {}
 
-  async list() {
-    return this.db.query.emailAutomations.findMany({
-      with: { steps: true },
-      orderBy: desc(emailAutomations.createdAt),
-    });
+  async list(pagination?: { page?: number; pageSize?: number }) {
+    const page = pagination?.page ?? 1;
+    const pageSize = pagination?.pageSize ?? 20;
+    const offset = (page - 1) * pageSize;
+
+    const [data, countResult] = await Promise.all([
+      this.db.query.emailAutomations.findMany({
+        with: { steps: true },
+        limit: pageSize,
+        offset,
+        orderBy: desc(emailAutomations.createdAt),
+      }),
+      this.db.select({ count: sql<number>`count(*)` }).from(emailAutomations),
+    ]);
+
+    const total = Number(countResult[0].count);
+    return { data, total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
   }
 
   async getById(id: string) {

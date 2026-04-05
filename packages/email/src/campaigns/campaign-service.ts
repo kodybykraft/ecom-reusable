@@ -2,6 +2,7 @@ import { eq, desc, sql, and, inArray } from 'drizzle-orm';
 import { emailCampaigns, emailCampaignSends, emailContacts, emailListContacts } from '@ecom/db';
 import type { Database } from '@ecom/db';
 import type { SesClient } from '../ses/ses-client.js';
+import { escapeHtml } from '@ecom/core';
 
 export class CampaignService {
   constructor(
@@ -90,31 +91,59 @@ export class CampaignService {
 
     let sent = 0;
     let failed = 0;
+    const BATCH_SIZE = 50;
 
-    for (const recipient of recipients) {
-      try {
-        const html = campaign.template.htmlContent.replace(/\{\{firstName\}\}/g, recipient.firstName ?? 'there');
-        const { messageId } = await this.ses.sendEmail({
-          to: recipient.email,
-          subject: campaign.subject,
-          html,
-          text: campaign.template.textContent ?? undefined,
-        });
+    // Process in batches of 50
+    for (let i = 0; i < recipients.length; i += BATCH_SIZE) {
+      const batch = recipients.slice(i, i + BATCH_SIZE);
 
-        await this.db.insert(emailCampaignSends).values({
-          campaignId: id,
-          contactId: recipient.id,
-          status: 'sent',
-          sentAt: new Date(),
-        });
-        sent++;
-      } catch {
-        await this.db.insert(emailCampaignSends).values({
-          campaignId: id,
-          contactId: recipient.id,
-          status: 'pending', // will retry
-        });
-        failed++;
+      const results = await Promise.allSettled(
+        batch.map(async (recipient) => {
+          const html = campaign.template!.htmlContent.replace(
+            /\{\{firstName\}\}/g,
+            escapeHtml(recipient.firstName ?? 'there'),
+          );
+          const { messageId } = await this.ses.sendEmail({
+            to: recipient.email,
+            subject: campaign.subject,
+            html,
+            text: campaign.template!.textContent ?? undefined,
+          });
+          return { recipientId: recipient.id, messageId, status: 'sent' as const };
+        }),
+      );
+
+      const sendRecords: Array<{
+        campaignId: string;
+        contactId: string;
+        status: string;
+        sentAt?: Date;
+      }> = [];
+
+      for (let j = 0; j < results.length; j++) {
+        const result = results[j];
+        const recipient = batch[j];
+        if (result.status === 'fulfilled') {
+          sendRecords.push({
+            campaignId: id,
+            contactId: recipient.id,
+            status: 'sent',
+            sentAt: new Date(),
+          });
+          sent++;
+        } else {
+          sendRecords.push({
+            campaignId: id,
+            contactId: recipient.id,
+            status: 'pending', // will retry
+          });
+          failed++;
+        }
+      }
+
+      // Batch insert all send records for this batch
+      if (sendRecords.length > 0) {
+        await this.db.insert(emailCampaignSends).values(sendRecords);
       }
     }
 

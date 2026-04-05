@@ -1,3 +1,5 @@
+'use server';
+
 import { getEcom } from '../create-ecom.js';
 
 export async function getOrCreateCart(cartId?: string, customerId?: string) {

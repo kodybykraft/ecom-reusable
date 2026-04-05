@@ -102,9 +102,9 @@ async function seed() {
 
   // Store settings
   await db.insert(storeSettings).values([
-    { key: 'store_name', value: '"E-Com Demo Store"', group: 'general' },
-    { key: 'currency', value: '"USD"', group: 'general' },
-    { key: 'timezone', value: '"America/New_York"', group: 'general' },
+    { key: 'store_name', value: 'E-Com Demo Store', group: 'general' },
+    { key: 'currency', value: 'USD', group: 'general' },
+    { key: 'timezone', value: 'America/New_York', group: 'general' },
   ]);
 
   console.log('Seed complete!');

@@ -1,4 +1,5 @@
 import { AdminLayout, DashboardPage, SettingsPage } from '@ecom/admin';
+import type { DashboardData } from '@ecom/admin';
 import { formatMoney } from '@ecom/core';
 
 export const dynamic = 'force-dynamic';
@@ -22,21 +23,56 @@ export default async function AdminCatchAll({
 
   return (
     <AdminLayout config={config} currentPath={path}>
-      {renderPage(page, path)}
+      {await renderPage(page, path)}
     </AdminLayout>
   );
 }
 
-function renderPage(page: string | undefined, currentPath: string) {
+async function fetchDashboardData(): Promise<DashboardData | null> {
+  try {
+    const { ecom } = await import('../../../lib/ecom');
+    const { orders, customers } = ecom;
+
+    const [orderResult, customerResult] = await Promise.all([
+      orders.list(undefined, { page: 1, pageSize: 5 }),
+      customers.list(undefined, { page: 1, pageSize: 1 }),
+    ]);
+
+    const totalRevenue = orderResult.data.reduce((sum, o) => sum + o.total, 0);
+    const avgOrderValue = orderResult.total > 0 ? Math.round(totalRevenue / orderResult.total) : 0;
+
+    return {
+      revenue: { value: totalRevenue, change: 0 },
+      orders: { value: orderResult.total, change: 0 },
+      customers: { value: customerResult.total, change: 0 },
+      avgOrderValue: { value: avgOrderValue, change: 0 },
+      recentOrders: orderResult.data.map((o) => ({
+        id: o.id,
+        orderNumber: o.orderNumber,
+        email: o.email,
+        total: o.total,
+        financialStatus: o.financialStatus,
+        createdAt: o.createdAt.toISOString(),
+      })),
+      lowStockProducts: [],
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function renderPage(page: string | undefined, currentPath: string) {
   switch (page) {
-    case undefined:
+    case undefined: {
+      const data = await fetchDashboardData();
       return (
         <DashboardPage
-          data={null}
+          data={data}
           loading={false}
           formatMoney={(cents) => formatMoney(cents)}
         />
       );
+    }
 
     case 'settings':
       return <SettingsPage basePath="/admin" />;

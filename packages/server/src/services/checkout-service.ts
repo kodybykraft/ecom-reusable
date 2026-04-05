@@ -67,6 +67,15 @@ export class CheckoutService {
     if (checkout.status === 'completed') {
       throw new ValidationError('Checkout already completed');
     }
+    if (!checkout.email) {
+      throw new ValidationError('Checkout is missing an email address');
+    }
+    if (!checkout.shippingAddress) {
+      throw new ValidationError('Checkout is missing a shipping address');
+    }
+    if (!checkout.cart || checkout.cart.items.length === 0) {
+      throw new ValidationError('Checkout cart has no items');
+    }
 
     await this.db
       .update(checkouts)
@@ -77,6 +86,8 @@ export class CheckoutService {
       .update(carts)
       .set({ status: 'converted' })
       .where(eq(carts.id, checkout.cartId));
+
+    await eventBus.emit('checkout.completed', { checkoutId: id, orderId: '' });
 
     return this.getById(id);
   }

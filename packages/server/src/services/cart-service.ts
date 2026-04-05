@@ -1,7 +1,7 @@
 import { eq, and } from 'drizzle-orm';
 import { carts, cartItems, productVariants } from '@ecom/db';
 import type { Database } from '@ecom/db';
-import { NotFoundError, validateStock, validateCartConstraints } from '@ecom/core';
+import { NotFoundError, ForbiddenError, validateStock, validateCartConstraints } from '@ecom/core';
 import type { ProductVariant } from '@ecom/core';
 import { eventBus } from '../events/event-bus.js';
 
@@ -26,17 +26,20 @@ export class CartService {
     return { ...cart, items: [] };
   }
 
-  async getById(id: string) {
+  async getById(id: string, customerId?: string) {
     const cart = await this.db.query.carts.findFirst({
       where: eq(carts.id, id),
       with: { items: { with: { variant: { with: { product: true } } } } },
     });
     if (!cart) throw new NotFoundError('Cart', id);
+    if (customerId && cart.customerId && cart.customerId !== customerId) {
+      throw new ForbiddenError('Cart does not belong to this customer');
+    }
     return cart;
   }
 
-  async addItem(cartId: string, variantId: string, quantity: number) {
-    const cart = await this.getById(cartId);
+  async addItem(cartId: string, variantId: string, quantity: number, customerId?: string) {
+    const cart = await this.getById(cartId, customerId);
     const variant = await this.db.query.productVariants.findFirst({
       where: eq(productVariants.id, variantId),
     });
@@ -62,8 +65,8 @@ export class CartService {
     return this.getById(cartId);
   }
 
-  async updateItemQuantity(cartId: string, itemId: string, quantity: number) {
-    const cart = await this.getById(cartId);
+  async updateItemQuantity(cartId: string, itemId: string, quantity: number, customerId?: string) {
+    const cart = await this.getById(cartId, customerId);
     const item = cart.items.find((i) => i.id === itemId);
     if (!item) throw new NotFoundError('CartItem', itemId);
 
@@ -81,8 +84,8 @@ export class CartService {
     return this.getById(cartId);
   }
 
-  async removeItem(cartId: string, itemId: string) {
-    const cart = await this.getById(cartId);
+  async removeItem(cartId: string, itemId: string, customerId?: string) {
+    const cart = await this.getById(cartId, customerId);
     const item = cart.items.find((i) => i.id === itemId);
     if (!item) throw new NotFoundError('CartItem', itemId);
 

@@ -1,3 +1,5 @@
+'use server';
+
 import { getEcom } from '../create-ecom.js';
 import type { CreateCheckoutInput, UpdateCheckoutInput } from '@ecom/core';
 

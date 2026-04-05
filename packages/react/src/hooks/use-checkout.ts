@@ -45,6 +45,7 @@ export function useCheckout() {
 
   const updateShipping = useCallback(
     async (checkoutId: string, shippingAddress: Record<string, unknown>) => {
+      setError(null);
       setLoading(true);
       try {
         const result = await fetcher<Checkout>(`/checkout/${checkoutId}`, {
@@ -53,6 +54,10 @@ export function useCheckout() {
         });
         setCheckout(result);
         return result;
+      } catch (err) {
+        const e = err instanceof Error ? err : new Error(String(err));
+        setError(e);
+        throw e;
       } finally {
         setLoading(false);
       }
@@ -62,12 +67,17 @@ export function useCheckout() {
 
   const complete = useCallback(
     async (checkoutId: string) => {
+      setError(null);
       setLoading(true);
       try {
         const result = await fetcher<{ id: string; orderNumber: number }>(`/checkout/${checkoutId}/complete`, {
           method: 'POST',
         });
         return result;
+      } catch (err) {
+        const e = err instanceof Error ? err : new Error(String(err));
+        setError(e);
+        throw e;
       } finally {
         setLoading(false);
       }

@@ -25,6 +25,7 @@ interface Cart {
 interface CartContextValue {
   cart: Cart | null;
   loading: boolean;
+  error: Error | null;
   addItem: (variantId: string, quantity?: number) => Promise<void>;
   updateItem: (itemId: string, quantity: number) => Promise<void>;
   removeItem: (itemId: string) => Promise<void>;
@@ -43,6 +44,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const { fetcher } = useEcom();
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
   const getCartId = () => {
     if (typeof window === 'undefined') return null;
@@ -77,6 +79,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addItem = useCallback(
     async (variantId: string, quantity = 1) => {
+      setError(null);
       setLoading(true);
       try {
         let cartId = getCartId();
@@ -92,6 +95,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
           body: JSON.stringify({ variantId, quantity }),
         });
         setCart(computeCart(data));
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error(String(err)));
       } finally {
         setLoading(false);
       }
@@ -101,6 +106,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const updateItem = useCallback(
     async (itemId: string, quantity: number) => {
+      setError(null);
       const cartId = getCartId();
       if (!cartId) return;
       setLoading(true);
@@ -110,6 +116,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
           { method: 'PATCH', body: JSON.stringify({ quantity }) },
         );
         setCart(computeCart(data));
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error(String(err)));
       } finally {
         setLoading(false);
       }
@@ -119,6 +127,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const removeItem = useCallback(
     async (itemId: string) => {
+      setError(null);
       const cartId = getCartId();
       if (!cartId) return;
       setLoading(true);
@@ -128,6 +137,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
           { method: 'DELETE' },
         );
         setCart(computeCart(data));
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error(String(err)));
       } finally {
         setLoading(false);
       }
@@ -136,7 +147,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   );
 
   return (
-    <CartContext.Provider value={{ cart, loading, addItem, updateItem, removeItem, refresh }}>
+    <CartContext.Provider value={{ cart, loading, error, addItem, updateItem, removeItem, refresh }}>
       {children}
     </CartContext.Provider>
   );

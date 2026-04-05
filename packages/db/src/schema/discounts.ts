@@ -1,4 +1,4 @@
-import { pgTable, text, varchar, integer, boolean, jsonb, timestamp, index } from 'drizzle-orm/pg-core';
+import { pgTable, text, varchar, integer, boolean, jsonb, timestamp, index, unique } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { orders } from './orders.js';
 import { customers } from './customers.js';
@@ -48,6 +48,7 @@ export const discountUsages = pgTable(
   },
   (table) => [
     index('discount_usages_discount_id_idx').on(table.discountId),
+    unique('discount_usage_unique').on(table.discountId, table.orderId),
   ],
 );
 

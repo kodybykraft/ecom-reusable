@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 
-export function useAdminApi(apiBase: string) {
+export function useAdminApi(apiBase: string, token?: string) {
   const [loading, setLoading] = useState(false);
 
   const request = useCallback(
@@ -13,6 +13,7 @@ export function useAdminApi(apiBase: string) {
           ...options,
           headers: {
             'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
             ...options.headers,
           },
         });
@@ -25,7 +26,7 @@ export function useAdminApi(apiBase: string) {
         setLoading(false);
       }
     },
-    [apiBase],
+    [apiBase, token],
   );
 
   const get = useCallback(<T>(path: string) => request<T>(path), [request]);

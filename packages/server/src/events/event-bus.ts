@@ -21,7 +21,12 @@ class EventBus {
 
   async emit<T extends EventType>(eventType: T, payload: EventPayload<T>): Promise<void> {
     const handlers = this.handlers.get(eventType) ?? [];
-    await Promise.allSettled(handlers.map((handler) => handler(payload)));
+    const results = await Promise.allSettled(handlers.map((handler) => handler(payload)));
+    for (const result of results) {
+      if (result.status === 'rejected') {
+        console.error(`[EventBus] Handler failed for ${eventType}:`, result.reason);
+      }
+    }
   }
 }
 

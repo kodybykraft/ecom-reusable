@@ -2,7 +2,7 @@ import { eq, like, and, sql, desc } from 'drizzle-orm';
 import { customers, customerAddresses } from '@ecom/db';
 import type { Database } from '@ecom/db';
 import type { CreateCustomerInput, CreateAddressInput, PaginationInput } from '@ecom/core';
-import { NotFoundError } from '@ecom/core';
+import { NotFoundError, escapeLike } from '@ecom/core';
 import { eventBus } from '../events/event-bus.js';
 
 export class CustomerService {
@@ -13,7 +13,7 @@ export class CustomerService {
     const pageSize = pagination?.pageSize ?? 20;
     const offset = (page - 1) * pageSize;
 
-    const where = search ? like(customers.email, `%${search}%`) : undefined;
+    const where = search ? like(customers.email, `%${escapeLike(search)}%`) : undefined;
 
     const [data, countResult] = await Promise.all([
       this.db.query.customers.findMany({

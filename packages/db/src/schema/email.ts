@@ -35,7 +35,7 @@ export const emailListContacts = pgTable(
     contactId: text('contact_id').notNull().references(() => emailContacts.id, { onDelete: 'cascade' }),
     addedAt: timestamp('added_at').notNull().defaultNow(),
   },
-  (table) => [primaryKey({ columns: [table.listId, table.contactId] })],
+  (table) => [primaryKey({ columns: [table.listId, table.contactId] }), index('list_contacts_contact_id_idx').on(table.contactId)],
 );
 
 export const emailSegments = pgTable('email_segments', {

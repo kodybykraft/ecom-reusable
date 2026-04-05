@@ -1,12 +1,27 @@
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, sql } from 'drizzle-orm';
 import { emailTemplates } from '@ecom/db';
 import type { Database } from '@ecom/db';
+import { escapeHtml } from '@ecom/core';
 
 export class TemplateService {
   constructor(private db: Database) {}
 
-  async list() {
-    return this.db.query.emailTemplates.findMany({ orderBy: desc(emailTemplates.createdAt) });
+  async list(pagination?: { page?: number; pageSize?: number }) {
+    const page = pagination?.page ?? 1;
+    const pageSize = pagination?.pageSize ?? 20;
+    const offset = (page - 1) * pageSize;
+
+    const [data, countResult] = await Promise.all([
+      this.db.query.emailTemplates.findMany({
+        limit: pageSize,
+        offset,
+        orderBy: desc(emailTemplates.createdAt),
+      }),
+      this.db.select({ count: sql<number>`count(*)` }).from(emailTemplates),
+    ]);
+
+    const total = Number(countResult[0].count);
+    return { data, total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
   }
 
   async getById(id: string) {
@@ -64,7 +79,7 @@ export class TemplateService {
 
     let html = template.htmlContent;
     for (const [key, value] of Object.entries(data)) {
-      html = html.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), value);
+      html = html.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), escapeHtml(value));
     }
 
     return { subject: template.subject, html };

@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import { attributionTouchpoints } from '@ecom/db';
 import type { Database } from '@ecom/db';
 
@@ -47,13 +47,11 @@ export class AttributionEngine {
 
     if (touchpoints.length === 0) return [];
 
-    // Link touchpoints to order
-    for (const tp of touchpoints) {
-      await this.db
-        .update(attributionTouchpoints)
-        .set({ orderId })
-        .where(eq(attributionTouchpoints.id, tp.id));
-    }
+    // Link touchpoints to order (batch update)
+    await this.db
+      .update(attributionTouchpoints)
+      .set({ orderId })
+      .where(inArray(attributionTouchpoints.id, touchpoints.map(tp => tp.id)));
 
     switch (model) {
       case 'first_touch':

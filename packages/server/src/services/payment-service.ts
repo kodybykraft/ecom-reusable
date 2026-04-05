@@ -40,6 +40,14 @@ export class PaymentService {
   }
 
   async capturePayment(providerIntentId: string) {
+    // Check if already captured before calling provider
+    const existingIntent = await this.db.query.paymentIntents.findFirst({
+      where: eq(paymentIntents.providerIntentId, providerIntentId),
+    });
+    if (existingIntent?.status === 'succeeded') {
+      return { id: providerIntentId, status: 'succeeded' as const, amount: existingIntent.amount };
+    }
+
     const result = await this.provider.capturePayment(providerIntentId);
 
     // Update payment intent status

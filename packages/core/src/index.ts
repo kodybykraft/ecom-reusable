@@ -14,6 +14,7 @@ export {
   sumMoney,
 } from './utils/money.js';
 export { slugify, uniqueSlug } from './utils/slug.js';
+export { escapeLike, escapeHtml } from './utils/escape.js';
 export {
   EcomError,
   NotFoundError,

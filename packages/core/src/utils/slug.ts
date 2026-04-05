@@ -12,6 +12,6 @@ export function slugify(text: string): string {
 /** Generate a unique slug by appending a random suffix */
 export function uniqueSlug(text: string): string {
   const base = slugify(text);
-  const suffix = Math.random().toString(36).substring(2, 8);
+  const suffix = crypto.randomUUID().substring(0, 8);
   return `${base}-${suffix}`;
 }

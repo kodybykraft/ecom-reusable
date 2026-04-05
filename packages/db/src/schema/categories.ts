@@ -8,7 +8,7 @@ export const categories = pgTable(
     id: text('id')
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
-    parentId: text('parent_id'),
+    parentId: text('parent_id').references((): any => categories.id, { onDelete: 'set null' }),
     slug: varchar('slug', { length: 255 }).notNull().unique(),
     name: varchar('name', { length: 255 }).notNull(),
     description: text('description'),

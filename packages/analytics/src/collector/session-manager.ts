@@ -63,10 +63,10 @@ export class SessionManager {
     return session.id;
   }
 
-  async linkCustomer(visitorId: string, customerId: string): Promise<void> {
+  async linkCustomer(sessionId: string, customerId: string): Promise<void> {
     await this.db
       .update(analyticsSessions)
       .set({ customerId })
-      .where(eq(analyticsSessions.visitorId, visitorId));
+      .where(eq(analyticsSessions.id, sessionId));
   }
 }

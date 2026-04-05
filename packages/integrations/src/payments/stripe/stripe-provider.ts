@@ -143,10 +143,52 @@ export class StripeProvider implements PaymentProvider {
   }
 
   verifyWebhookSignature(payload: string, signature: string): boolean {
-    // Stripe webhook signature verification requires crypto.timingSafeEqual
-    // Full implementation needs the Stripe SDK or manual HMAC-SHA256
-    // This is a simplified check — use stripe.webhooks.constructEvent() in production
-    return signature.includes('v1=') && payload.length > 0;
+    // Synchronous signature format check — real verification is async.
+    // Use verifyWebhookSignatureAsync for cryptographic verification.
+    if (!signature || !payload) return false;
+    const parts = signature.split(',');
+    const tPart = parts.find((p) => p.startsWith('t='));
+    const v1Part = parts.find((p) => p.startsWith('v1='));
+    return !!(tPart && v1Part);
+  }
+
+  async verifyWebhookSignatureAsync(payload: string, signature: string): Promise<boolean> {
+    try {
+      if (!signature || !payload) return false;
+
+      const parts = signature.split(',');
+      const tPart = parts.find((p) => p.startsWith('t='));
+      const v1Part = parts.find((p) => p.startsWith('v1='));
+      if (!tPart || !v1Part) return false;
+
+      const timestamp = tPart.substring(2);
+      const expectedSig = v1Part.substring(3);
+
+      const encoder = new TextEncoder();
+      const key = await crypto.subtle.importKey(
+        'raw',
+        encoder.encode(this.config.webhookSecret),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign'],
+      );
+
+      const signedPayload = `${timestamp}.${payload}`;
+      const mac = await crypto.subtle.sign('HMAC', key, encoder.encode(signedPayload));
+      const computedSig = Array.from(new Uint8Array(mac))
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
+
+      // Timing-safe comparison
+      if (computedSig.length !== expectedSig.length) return false;
+      let mismatch = 0;
+      for (let i = 0; i < computedSig.length; i++) {
+        mismatch |= computedSig.charCodeAt(i) ^ expectedSig.charCodeAt(i);
+      }
+      return mismatch === 0;
+    } catch {
+      return false;
+    }
   }
 
   async handleWebhook(event: { type: string; data: { object: Record<string, unknown> } }): Promise<WebhookResult> {

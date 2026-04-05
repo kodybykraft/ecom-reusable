@@ -1,4 +1,4 @@
-import { pgTable, text, varchar, integer, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, text, varchar, integer, jsonb, index } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 export const shippingZones = pgTable('shipping_zones', {
@@ -26,7 +26,7 @@ export const shippingRates = pgTable('shipping_rates', {
     minPrice?: number;
     maxPrice?: number;
   }>(),
-});
+}, (table) => [index('shipping_rates_zone_id_idx').on(table.zoneId)]);
 
 // Relations
 export const shippingZonesRelations = relations(shippingZones, ({ many }) => ({
