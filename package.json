@@ -1,0 +1,30 @@
+{
+  "name": "ecom-reusable",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "description": "Plug-in ecommerce platform core for Next.js/React",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "db:generate": "turbo run db:generate --filter=@ecom/db",
+    "db:push": "turbo run db:push --filter=@ecom/db",
+    "db:seed": "turbo run db:seed --filter=@ecom/db",
+    "clean": "turbo run clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "turbo": "^2.4.0",
+    "typescript": "^5.7.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.4.0"
+  },
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=20"
+  }
+}
