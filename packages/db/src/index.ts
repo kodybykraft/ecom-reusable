@@ -1,2 +1,3 @@
-// @ecom/db — Database schema, migrations, and Drizzle ORM setup
-export {};
+export { createDb } from './client.js';
+export type { Database } from './client.js';
+export * from './schema/index.js';
