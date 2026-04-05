@@ -29,9 +29,9 @@ export function Breadcrumb({ items }: { items: Array<{ label: string; href?: str
 
 export function TwoCol({ left, right }: { left: React.ReactNode; right: React.ReactNode }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '16px', alignItems: 'start' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>{left}</div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>{right}</div>
+    <div className="admin-two-col">
+      <div className="admin-two-col-main">{left}</div>
+      <div className="admin-two-col-side">{right}</div>
     </div>
   );
 }

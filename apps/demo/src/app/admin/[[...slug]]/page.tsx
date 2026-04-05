@@ -297,7 +297,7 @@ function DashboardPage() {
         <StatCard label="Conversion rate" value="3.2%" change={0.4} />
         <StatCard label="Orders to fulfill" value={String(unfulfilled)} />
       </StatsGrid>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <div className="admin-grid-2">
         <Card title="Recent orders" actions={<a href="/admin/orders" className="admin-btn admin-btn--plain">View all</a>}>
           <table className="admin-table">
             <thead><tr><th>Order</th><th>Customer</th><th style={{ textAlign: 'right' }}>Total</th><th>Status</th></tr></thead>
@@ -411,8 +411,8 @@ function ProductFormPage({ product: p }: { product: typeof PRODUCTS[0] | null })
         left={<>
           <Card title="Title and description"><FormGroup label="Title"><input className="admin-input" defaultValue={p?.title ?? ''} placeholder="Short sleeve t-shirt" /></FormGroup><FormGroup label="Description"><textarea className="admin-input" rows={4} defaultValue={p?.description ?? ''} style={{ resize: 'vertical' }} /></FormGroup></Card>
           <Card title="Media"><div style={{ border: '2px dashed var(--admin-border)', borderRadius: 'var(--admin-radius)', padding: '32px', textAlign: 'center', color: 'var(--admin-text-muted)' }}><div style={{ fontSize: '14px', fontWeight: 500 }}>Drag and drop or click to upload</div></div></Card>
-          <Card title="Pricing"><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}><FormGroup label="Price"><input className="admin-input" defaultValue={p ? (p.price / 100).toFixed(2) : ''} /></FormGroup><FormGroup label="Compare-at price"><input className="admin-input" defaultValue={p?.compareAt ? (p.compareAt / 100).toFixed(2) : ''} /></FormGroup><FormGroup label="Cost per item"><input className="admin-input" defaultValue={p ? (p.cost / 100).toFixed(2) : ''} /></FormGroup></div></Card>
-          <Card title="Inventory"><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}><FormGroup label="SKU"><input className="admin-input" defaultValue={p?.sku ?? ''} /></FormGroup><FormGroup label="Quantity"><input className="admin-input" type="number" defaultValue={p?.inventory ?? 0} /></FormGroup></div></Card>
+          <Card title="Pricing"><div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}><FormGroup label="Price"><input className="admin-input" defaultValue={p ? (p.price / 100).toFixed(2) : ''} /></FormGroup><FormGroup label="Compare-at price"><input className="admin-input" defaultValue={p?.compareAt ? (p.compareAt / 100).toFixed(2) : ''} /></FormGroup><FormGroup label="Cost per item"><input className="admin-input" defaultValue={p ? (p.cost / 100).toFixed(2) : ''} /></FormGroup></div></Card>
+          <Card title="Inventory"><div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}><FormGroup label="SKU"><input className="admin-input" defaultValue={p?.sku ?? ''} /></FormGroup><FormGroup label="Quantity"><input className="admin-input" type="number" defaultValue={p?.inventory ?? 0} /></FormGroup></div></Card>
           {p && p.variants.length > 0 && <Card title="Variants"><table className="admin-table"><thead><tr><th>Variant</th><th style={{ textAlign: 'right' }}>Price</th><th style={{ textAlign: 'right' }}>Inventory</th></tr></thead><tbody>{p.variants.map((v, i) => <tr key={i}><td>{v.title}</td><td style={{ textAlign: 'right' }}>{formatMoney(v.price)}</td><td style={{ textAlign: 'right', color: v.inventory <= 5 ? 'var(--admin-critical)' : undefined, fontWeight: v.inventory <= 5 ? 600 : undefined }}>{v.inventory}</td></tr>)}</tbody></table></Card>}
         </>}
         right={<>
@@ -491,7 +491,7 @@ function AnalyticsPage() {
         <StatCard label="Returning customers" value="38%" />
         <StatCard label="Avg order value" value={formatMoney(paidOrders.length > 0 ? Math.round(totalSales / paidOrders.length) : 0)} />
       </StatsGrid>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <div className="admin-grid-2">
         <Card title="Sales over time"><div style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-text-muted)', borderRadius: 'var(--admin-radius)', background: 'var(--admin-border-light)' }}>Chart placeholder — integrate Recharts</div></Card>
         <Card title="Top referrers"><table className="admin-table"><thead><tr><th>Source</th><th style={{ textAlign: 'right' }}>Sessions</th><th style={{ textAlign: 'right' }}>Orders</th></tr></thead><tbody><tr><td>Direct</td><td style={{ textAlign: 'right' }}>1,240</td><td style={{ textAlign: 'right' }}>42</td></tr><tr><td>Google</td><td style={{ textAlign: 'right' }}>680</td><td style={{ textAlign: 'right' }}>28</td></tr><tr><td>Instagram</td><td style={{ textAlign: 'right' }}>420</td><td style={{ textAlign: 'right' }}>15</td></tr><tr><td>Facebook</td><td style={{ textAlign: 'right' }}>310</td><td style={{ textAlign: 'right' }}>8</td></tr></tbody></table></Card>
       </div>
