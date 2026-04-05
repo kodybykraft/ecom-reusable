@@ -12,6 +12,7 @@ export { storeSettings } from './settings.js';
 export { users, sessions, staffPermissions } from './users.js';
 export { activityLogs } from './activity-logs.js';
 export { webhooks, webhookDeliveries } from './webhooks.js';
+export { paymentMethods, paymentIntents } from './payments.js';
 
 // Relations
 export { productsRelations, productVariantsRelations, productImagesRelations, productOptionsRelations } from './products.js';
@@ -25,3 +26,4 @@ export { shippingZonesRelations, shippingRatesRelations } from './shipping.js';
 export { usersRelations, sessionsRelations, staffPermissionsRelations } from './users.js';
 export { activityLogsRelations } from './activity-logs.js';
 export { webhooksRelations, webhookDeliveriesRelations } from './webhooks.js';
+export { paymentMethodsRelations, paymentIntentsRelations } from './payments.js';

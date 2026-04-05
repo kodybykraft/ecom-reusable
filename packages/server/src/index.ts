@@ -15,6 +15,7 @@ export { OrderService } from './services/order-service.js';
 export { CustomerService } from './services/customer-service.js';
 export { DiscountService } from './services/discount-service.js';
 export { ActivityLogService } from './services/activity-log-service.js';
+export { PaymentService } from './services/payment-service.js';
 
 // Events
 export { eventBus } from './events/event-bus.js';
