@@ -17,6 +17,14 @@ export { DiscountService } from './services/discount-service.js';
 export { ActivityLogService } from './services/activity-log-service.js';
 export { PaymentService } from './services/payment-service.js';
 
+// Middleware
+export { handleError, getStatusCode } from './middleware/error-handler.js';
+export type { ErrorResponse } from './middleware/error-handler.js';
+export { healthCheck } from './middleware/health-check.js';
+export type { HealthCheckResult } from './middleware/health-check.js';
+export { RateLimiter, defaultRateLimiter } from './middleware/rate-limiter.js';
+export type { RateLimiterConfig } from './middleware/rate-limiter.js';
+
 // Events
 export { eventBus } from './events/event-bus.js';
 export type { DomainEvent, EventType, EventPayload } from './events/event-types.js';

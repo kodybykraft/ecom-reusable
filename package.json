@@ -9,13 +9,15 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
-    "test": "turbo run test",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "db:generate": "turbo run db:generate --filter=@ecom/db",
     "db:push": "turbo run db:push --filter=@ecom/db",
     "db:seed": "turbo run db:seed --filter=@ecom/db",
     "clean": "turbo run clean && rm -rf node_modules"
   },
   "devDependencies": {
+    "vitest": "^3.0.0",
     "turbo": "^2.4.0",
     "typescript": "^5.7.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
