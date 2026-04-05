@@ -35,12 +35,18 @@ importers:
       '@ecom/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@ecom/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@ecom/next':
         specifier: workspace:*
         version: link:../../packages/next
       '@ecom/react':
         specifier: workspace:*
         version: link:../../packages/react
+      '@ecom/server':
+        specifier: workspace:*
+        version: link:../../packages/server
       '@ecom/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -158,6 +164,9 @@ importers:
       '@ecom/core':
         specifier: workspace:*
         version: link:../core
+      '@ecom/db':
+        specifier: workspace:*
+        version: link:../db
       '@ecom/server':
         specifier: workspace:*
         version: link:../server
@@ -202,6 +211,9 @@ importers:
       '@ecom/integrations':
         specifier: workspace:*
         version: link:../integrations
+      drizzle-orm:
+        specifier: ^0.38.0
+        version: 0.38.4(@types/react@19.2.14)(postgres@3.4.9)(react@19.2.4)
     devDependencies:
       typescript:
         specifier: ^5.7.0

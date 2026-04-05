@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@ecom/core": "workspace:*",
+    "@ecom/db": "workspace:*",
     "@ecom/server": "workspace:*"
   },
   "peerDependencies": {
