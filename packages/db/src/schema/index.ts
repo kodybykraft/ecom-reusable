@@ -13,6 +13,7 @@ export { users, sessions, staffPermissions } from './users.js';
 export { activityLogs } from './activity-logs.js';
 export { webhooks, webhookDeliveries } from './webhooks.js';
 export { paymentMethods, paymentIntents } from './payments.js';
+export { analyticsEvents, analyticsSessions, analyticsDailyAggregates, attributionTouchpoints } from './analytics.js';
 
 // Relations
 export { productsRelations, productVariantsRelations, productImagesRelations, productOptionsRelations } from './products.js';
@@ -27,3 +28,4 @@ export { usersRelations, sessionsRelations, staffPermissionsRelations } from './
 export { activityLogsRelations } from './activity-logs.js';
 export { webhooksRelations, webhookDeliveriesRelations } from './webhooks.js';
 export { paymentMethodsRelations, paymentIntentsRelations } from './payments.js';
+export { analyticsEventsRelations, analyticsSessionsRelations } from './analytics.js';
