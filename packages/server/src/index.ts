@@ -16,6 +16,10 @@ export { CustomerService } from './services/customer-service.js';
 export { DiscountService } from './services/discount-service.js';
 export { ActivityLogService } from './services/activity-log-service.js';
 export { PaymentService } from './services/payment-service.js';
+export { InventoryService } from './services/inventory-service.js';
+export { ReturnService } from './services/return-service.js';
+export { DraftOrderService } from './services/draft-order-service.js';
+export { ImportExportService } from './services/import-export-service.js';
 
 // Middleware
 export { handleError, getStatusCode } from './middleware/error-handler.js';

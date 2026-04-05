@@ -6,3 +6,6 @@ export type * from './checkout.js';
 export type * from './order.js';
 export type * from './discount.js';
 export type * from './shipping.js';
+export type * from './inventory.js';
+export type * from './return.js';
+export type * from './draft-order.js';

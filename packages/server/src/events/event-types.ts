@@ -18,7 +18,16 @@ export type DomainEvent =
   | { type: 'customer.updated'; payload: { customerId: string } }
   | { type: 'inventory.low_stock'; payload: { variantId: string; quantity: number } }
   | { type: 'discount.created'; payload: { discountId: string } }
-  | { type: 'discount.used'; payload: { discountId: string; orderId: string } };
+  | { type: 'discount.used'; payload: { discountId: string; orderId: string } }
+  | { type: 'return.created'; payload: { returnId: string; orderId: string } }
+  | { type: 'return.approved'; payload: { returnId: string } }
+  | { type: 'return.received'; payload: { returnId: string } }
+  | { type: 'return.refunded'; payload: { returnId: string } }
+  | { type: 'return.restocked'; payload: { returnId: string } }
+  | { type: 'return.rejected'; payload: { returnId: string } }
+  | { type: 'draft_order.created'; payload: { draftOrderId: string } }
+  | { type: 'draft_order.converted'; payload: { draftOrderId: string; orderId: string } }
+  | { type: 'inventory.adjusted'; payload: { variantId: string; locationId: string; change: number } };
 
 export type EventType = DomainEvent['type'];
 export type EventPayload<T extends EventType> = Extract<DomainEvent, { type: T }>['payload'];
