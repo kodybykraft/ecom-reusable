@@ -14,6 +14,7 @@ export { activityLogs } from './activity-logs.js';
 export { webhooks, webhookDeliveries } from './webhooks.js';
 export { paymentMethods, paymentIntents } from './payments.js';
 export { analyticsEvents, analyticsSessions, analyticsDailyAggregates, attributionTouchpoints } from './analytics.js';
+export { emailContacts, emailLists, emailListContacts, emailSegments, emailTemplates, emailCampaigns, emailCampaignSends, emailAutomations, emailAutomationSteps, emailAutomationEnrollments, emailSuppressionList, emailDomainSettings } from './email.js';
 
 // Relations
 export { productsRelations, productVariantsRelations, productImagesRelations, productOptionsRelations } from './products.js';
@@ -29,3 +30,4 @@ export { activityLogsRelations } from './activity-logs.js';
 export { webhooksRelations, webhookDeliveriesRelations } from './webhooks.js';
 export { paymentMethodsRelations, paymentIntentsRelations } from './payments.js';
 export { analyticsEventsRelations, analyticsSessionsRelations } from './analytics.js';
+export { emailContactsRelations, emailCampaignsRelations, emailCampaignSendsRelations, emailAutomationsRelations, emailAutomationStepsRelations, emailAutomationEnrollmentsRelations } from './email.js';

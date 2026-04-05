@@ -19,7 +19,8 @@
   "dependencies": {
     "@ecom/core": "workspace:*",
     "@ecom/db": "workspace:*",
-    "@ecom/integrations": "workspace:*"
+    "@ecom/integrations": "workspace:*",
+    "drizzle-orm": "^0.38.0"
   },
   "devDependencies": {
     "typescript": "^5.7.0"
