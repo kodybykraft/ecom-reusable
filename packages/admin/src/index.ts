@@ -34,5 +34,25 @@ export type { ActivityLogPageProps } from './pages/activity/activity-log-page.js
 // Hooks — import directly from '@ecom/admin/hooks/use-admin-api' in client components
 // Not re-exported here to avoid 'use client' boundary issues in server components
 
+// Interactive Components
+export { InteractiveTabs } from './components/interactive-tabs.js';
+export type { TabItem, InteractiveTabsProps } from './components/interactive-tabs.js';
+
+export { SearchableToolbar } from './components/searchable-toolbar.js';
+export type { SearchableToolbarProps } from './components/searchable-toolbar.js';
+
+export { PaginatedTable } from './components/paginated-table.js';
+export type { PaginatedTableProps } from './components/paginated-table.js';
+
+export { FormWrapper } from './components/form-wrapper.js';
+export type { FormWrapperProps } from './components/form-wrapper.js';
+
+export { ConfirmDialog } from './components/confirm-dialog.js';
+export type { ConfirmDialogProps } from './components/confirm-dialog.js';
+
+export { ToastProvider, useToast } from './components/toast.js';
+
+export { TableSkeleton, CardSkeleton, FormSkeleton } from './components/loading-skeleton.js';
+
 // Utils
 export { adminRoutes } from './utils/admin-routes.js';

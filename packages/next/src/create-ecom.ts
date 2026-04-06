@@ -11,6 +11,17 @@ import {
   DiscountService,
   ActivityLogService,
   PermissionService,
+  PaymentService,
+  InventoryService,
+  ReturnService,
+  DraftOrderService,
+  ImportExportService,
+  WebhookService,
+  CategoryService,
+  SettingsService,
+  AnalyticsQueryService,
+  StaffService,
+  AbandonedCheckoutService,
 } from '@ecom/server';
 
 export interface EcomConfig {
@@ -28,6 +39,17 @@ export interface Ecom {
   discounts: DiscountService;
   activityLog: ActivityLogService;
   permissions: PermissionService;
+  payments?: PaymentService; // initialized separately — requires a payment provider
+  inventory: InventoryService;
+  returns: ReturnService;
+  draftOrders: DraftOrderService;
+  importExport: ImportExportService;
+  webhooks: WebhookService;
+  categories: CategoryService;
+  settings: SettingsService;
+  analyticsQuery: AnalyticsQueryService;
+  staff: StaffService;
+  abandonedCheckouts: AbandonedCheckoutService;
 }
 
 let instance: Ecom | null = null;
@@ -59,6 +81,17 @@ export function createEcom(config: EcomConfig): Ecom {
     discounts: new DiscountService(db),
     activityLog: new ActivityLogService(db),
     permissions: new PermissionService(db),
+    // payments requires a provider — initialized separately via ecom.initPayments(provider)
+    inventory: new InventoryService(db),
+    returns: new ReturnService(db),
+    draftOrders: new DraftOrderService(db),
+    importExport: new ImportExportService(db),
+    webhooks: new WebhookService(db),
+    categories: new CategoryService(db),
+    settings: new SettingsService(db),
+    analyticsQuery: new AnalyticsQueryService(db),
+    staff: new StaffService(db),
+    abandonedCheckouts: new AbandonedCheckoutService(db),
   };
 
   return instance;

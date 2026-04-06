@@ -20,6 +20,12 @@ export { InventoryService } from './services/inventory-service.js';
 export { ReturnService } from './services/return-service.js';
 export { DraftOrderService } from './services/draft-order-service.js';
 export { ImportExportService } from './services/import-export-service.js';
+export { WebhookService } from './services/webhook-service.js';
+export { CategoryService } from './services/category-service.js';
+export { SettingsService } from './services/settings-service.js';
+export { AnalyticsQueryService } from './services/analytics-query-service.js';
+export { StaffService } from './services/staff-service.js';
+export { AbandonedCheckoutService } from './services/abandoned-checkout-service.js';
 
 // Middleware
 export { handleError, getStatusCode } from './middleware/error-handler.js';
