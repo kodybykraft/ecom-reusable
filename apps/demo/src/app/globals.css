@@ -119,7 +119,10 @@ a:hover { text-decoration: underline; }
 .admin-sidebar {
   position: fixed; left: 0; top: 0; bottom: 0;
   width: var(--sidebar-width);
-  background: var(--admin-sidebar-bg); overflow: hidden; z-index: 60;
+  background: var(--admin-sidebar-bg); overflow-y: auto; z-index: 60;
+  scrollbar-width: none; /* Firefox */
+}
+.admin-sidebar::-webkit-scrollbar { display: none; /* Chrome/Safari */
   display: flex; flex-direction: column;
 }
 .admin-sidebar::before {
