@@ -98,6 +98,68 @@ function Sidebar({ currentPath }: { currentPath: string }) {
   );
 }
 
+const MOBILE_TABS = [
+  { label: 'Home', path: '/admin', icon: '🏠' },
+  { label: 'Orders', path: '/admin/orders', icon: '📦' },
+  { label: 'Products', path: '/admin/products', icon: '🏷️' },
+  { label: 'Customers', path: '/admin/customers', icon: '👥' },
+  { label: 'More', path: '/admin/more', icon: '☰' },
+];
+
+const MORE_MENU = [
+  { label: 'Drafts', path: '/admin/drafts', icon: '📝' },
+  { label: 'Returns', path: '/admin/returns', icon: '↩️' },
+  { label: 'Abandoned', path: '/admin/abandoned-checkouts', icon: '🛒' },
+  { label: 'Categories', path: '/admin/categories', icon: '📂' },
+  { label: 'Collections', path: '/admin/collections', icon: '📚' },
+  { label: 'Inventory', path: '/admin/inventory', icon: '📊' },
+  { label: 'Analytics', path: '/admin/analytics', icon: '📈' },
+  { label: 'Discounts', path: '/admin/discounts', icon: '🎫' },
+  { label: 'Email', path: '/admin/email', icon: '✉️' },
+  { label: 'Import/Export', path: '/admin/import-export', icon: '📤' },
+  { label: 'Activity Log', path: '/admin/activity-log', icon: '📋' },
+  { label: 'Webhooks', path: '/admin/webhooks', icon: '🔗' },
+  { label: 'Settings', path: '/admin/settings', icon: '⚙️' },
+];
+
+function MobileTabBar({ currentPath }: { currentPath: string }) {
+  const isMore = !MOBILE_TABS.slice(0, 4).some(t => currentPath === t.path || (t.path !== '/admin' && currentPath.startsWith(t.path)));
+
+  return (
+    <>
+      {/* More menu page — shown when on a route not in the 4 main tabs */}
+      {currentPath === '/admin/more' && (
+        <div className="admin-more-menu">
+          <div style={{ padding: '20px 20px 10px', fontSize: '18px', fontWeight: 600 }}>More</div>
+          <div className="admin-more-grid">
+            {MORE_MENU.map((item) => (
+              <a key={item.path} href={item.path} className="admin-more-item">
+                <span className="admin-more-icon">{item.icon}</span>
+                <span className="admin-more-label">{item.label}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Bottom tab bar */}
+      <nav className="admin-bottom-bar">
+        {MOBILE_TABS.map((tab) => {
+          const active = tab.path === '/admin/more'
+            ? isMore || currentPath === '/admin/more'
+            : currentPath === tab.path || (tab.path !== '/admin' && currentPath.startsWith(tab.path));
+          return (
+            <a key={tab.path} href={tab.path} className={`admin-bottom-tab${active ? ' admin-bottom-tab--active' : ''}`}>
+              <span className="admin-bottom-tab-icon">{tab.icon}</span>
+              <span className="admin-bottom-tab-label">{tab.label}</span>
+            </a>
+          );
+        })}
+      </nav>
+    </>
+  );
+}
+
 /* ==========================================================================
    PAGE SHELL + ROUTER
    ========================================================================== */
@@ -111,6 +173,7 @@ export default async function AdminCatchAll({ params }: { params: Promise<{ slug
       <Sidebar currentPath={path} />
       <Topbar />
       <main className="admin-main">{renderPage(slug)}</main>
+      <MobileTabBar currentPath={path} />
     </>
   );
 }
@@ -123,6 +186,9 @@ function renderPage(slug?: string[]) {
   switch (page) {
     // --- Dashboard ---
     case undefined: return <DashboardPage />;
+
+    // --- More menu (mobile only — rendered by MobileTabBar) ---
+    case 'more': return null;
 
     // --- Orders ---
     case 'orders':

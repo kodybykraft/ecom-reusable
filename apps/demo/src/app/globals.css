@@ -358,6 +358,48 @@ a:hover { text-decoration: underline; }
 .admin-input:focus { border-color: var(--admin-primary); box-shadow: 0 0 0 3px rgba(45,96,255,.08); }
 
 /* ============================================================
+   MOBILE BOTTOM TAB BAR — hidden on desktop, shown ≤768px
+   ============================================================ */
+.admin-bottom-bar {
+  display: none; /* shown via media query */
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 70;
+  height: 64px; background: var(--admin-card);
+  border-top: 1px solid var(--admin-border);
+  padding: 0 8px; padding-bottom: env(safe-area-inset-bottom, 0);
+  align-items: center; justify-content: space-around;
+  box-shadow: 0 -2px 12px rgba(0,0,0,.06);
+}
+.admin-bottom-tab {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; flex: 1; padding: 6px 0;
+  color: var(--admin-text-muted); text-decoration: none;
+  transition: color .15s;
+}
+.admin-bottom-tab:hover { text-decoration: none; color: var(--admin-text-secondary); }
+.admin-bottom-tab--active { color: var(--admin-primary); }
+.admin-bottom-tab-icon { font-size: 22px; line-height: 1; }
+.admin-bottom-tab-label { font-size: 10px; font-weight: 500; letter-spacing: .02em; }
+
+/* More menu — full screen grid */
+.admin-more-menu {
+  display: none; /* shown via media query */
+  padding-bottom: 80px;
+}
+.admin-more-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
+  padding: 8px 16px;
+}
+.admin-more-item {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 20px 8px; border-radius: var(--admin-radius);
+  text-decoration: none; color: var(--admin-text);
+  transition: background .15s;
+}
+.admin-more-item:hover { background: var(--admin-border-light); text-decoration: none; }
+.admin-more-icon { font-size: 28px; }
+.admin-more-label { font-size: 12px; font-weight: 500; color: var(--admin-text-secondary); text-align: center; }
+
+/* ============================================================
    EMPTY STATE
    ============================================================ */
 .admin-empty { text-align: center; padding: 60px 20px; }
@@ -431,6 +473,11 @@ a:hover { text-decoration: underline; }
   .admin-topbar { left: 0; }
   .admin-topbar-logo { display: flex; }
   .admin-topbar-avatar { width: 34px; height: 34px; font-size: 12px; }
+
+  /* Bottom tab bar + extra bottom padding for content */
+  .admin-bottom-bar { display: flex; }
+  .admin-more-menu { display: block; }
+  .admin-main { padding-bottom: calc(var(--content-pad) + 72px); }
 
   .admin-page-header { flex-direction: column; gap: 10px; margin-bottom: 16px; }
 
