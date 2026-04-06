@@ -108,11 +108,9 @@ export default async function AdminCatchAll({ params }: { params: Promise<{ slug
 
   return (
     <>
+      <Sidebar currentPath={path} />
       <Topbar />
-      <div style={{ display: 'flex' }}>
-        <Sidebar currentPath={path} />
-        <main className="admin-main">{renderPage(slug)}</main>
-      </div>
+      <main className="admin-main">{renderPage(slug)}</main>
     </>
   );
 }
