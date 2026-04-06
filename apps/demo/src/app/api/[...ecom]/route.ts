@@ -26,8 +26,15 @@ function searchParam(request: NextRequest, key: string): string | null {
 // ---------------------------------------------------------------------------
 export async function GET(request: NextRequest) {
   try {
-    const ecom = await getEcomInstance();
     const parts = segments(request);
+
+    // Admin API delegation
+    if (parts[0] === 'ecom' && parts[1] === 'admin') {
+      const { handleAdminRequest } = await import('./admin-handlers');
+      return handleAdminRequest(request, 'GET', parts.slice(2));
+    }
+
+    const ecom = await getEcomInstance();
 
     // GET /api/ecom/products
     if (parts[0] === 'ecom' && parts[1] === 'products' && !parts[2]) {
@@ -87,8 +94,15 @@ export async function GET(request: NextRequest) {
 // ---------------------------------------------------------------------------
 export async function POST(request: NextRequest) {
   try {
-    const ecom = await getEcomInstance();
     const parts = segments(request);
+
+    // Admin API delegation
+    if (parts[0] === 'ecom' && parts[1] === 'admin') {
+      const { handleAdminRequest } = await import('./admin-handlers');
+      return handleAdminRequest(request, 'POST', parts.slice(2));
+    }
+
+    const ecom = await getEcomInstance();
 
     // POST /api/ecom/cart (create new cart)
     if (parts[0] === 'ecom' && parts[1] === 'cart' && !parts[2]) {
@@ -154,8 +168,15 @@ export async function POST(request: NextRequest) {
 // ---------------------------------------------------------------------------
 export async function PATCH(request: NextRequest) {
   try {
-    const ecom = await getEcomInstance();
     const parts = segments(request);
+
+    // Admin API delegation
+    if (parts[0] === 'ecom' && parts[1] === 'admin') {
+      const { handleAdminRequest } = await import('./admin-handlers');
+      return handleAdminRequest(request, 'PATCH', parts.slice(2));
+    }
+
+    const ecom = await getEcomInstance();
 
     // PATCH /api/ecom/cart/[id]/items/[itemId]
     if (parts[0] === 'ecom' && parts[1] === 'cart' && parts[2] && parts[3] === 'items' && parts[4]) {
@@ -185,8 +206,15 @@ export async function PATCH(request: NextRequest) {
 // ---------------------------------------------------------------------------
 export async function DELETE(request: NextRequest) {
   try {
-    const ecom = await getEcomInstance();
     const parts = segments(request);
+
+    // Admin API delegation
+    if (parts[0] === 'ecom' && parts[1] === 'admin') {
+      const { handleAdminRequest } = await import('./admin-handlers');
+      return handleAdminRequest(request, 'DELETE', parts.slice(2));
+    }
+
+    const ecom = await getEcomInstance();
 
     // DELETE /api/ecom/cart/[id]/items/[itemId]
     if (parts[0] === 'ecom' && parts[1] === 'cart' && parts[2] && parts[3] === 'items' && parts[4]) {
