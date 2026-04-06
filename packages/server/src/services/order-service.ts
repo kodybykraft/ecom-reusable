@@ -1,4 +1,4 @@
-import { eq, desc, and, sql } from 'drizzle-orm';
+import { eq, desc, and, gte, sql } from 'drizzle-orm';
 import { orders, orderLineItems, orderTransactions, productVariants } from '@ecom/db';
 import type { Database } from '@ecom/db';
 import { NotFoundError, InsufficientStockError } from '@ecom/core';
@@ -90,17 +90,19 @@ export class OrderService {
 
       // Decrement inventory with stock guard
       for (const item of checkout.cart.items) {
-        // Verify stock before decrementing
-        const variant = await this.db.query.productVariants.findFirst({
-          where: eq(productVariants.id, item.variant.id),
-        });
-        if (!variant || variant.inventoryQuantity < item.quantity) {
-          throw new InsufficientStockError(item.variant.id, item.quantity, variant?.inventoryQuantity ?? 0);
-        }
-        await this.db
+        // Atomic stock decrement — prevents race condition on concurrent checkouts
+        const [updated] = await this.db
           .update(productVariants)
-          .set({ inventoryQuantity: sql`GREATEST(${productVariants.inventoryQuantity} - ${item.quantity}, 0)` })
-          .where(eq(productVariants.id, item.variant.id));
+          .set({ inventoryQuantity: sql`${productVariants.inventoryQuantity} - ${item.quantity}` })
+          .where(and(
+            eq(productVariants.id, item.variant.id),
+            gte(productVariants.inventoryQuantity, item.quantity),
+          ))
+          .returning({ id: productVariants.id });
+
+        if (!updated) {
+          throw new InsufficientStockError(item.variant.id, item.quantity, 0);
+        }
       }
     }
 

@@ -190,6 +190,13 @@ export class PayPalProvider implements PaymentProvider {
     },
   ): Promise<boolean> {
     try {
+      // Validate cert_url against PayPal domains to prevent SSRF
+      const ALLOWED_CERT_ORIGINS = ['https://api.paypal.com', 'https://api-m.paypal.com', 'https://api-m.sandbox.paypal.com'];
+      try {
+        const origin = new URL(headers.certUrl).origin;
+        if (!ALLOWED_CERT_ORIGINS.includes(origin)) return false;
+      } catch { return false; }
+
       const body = JSON.parse(payload);
       const result = await this.request<{ verification_status: string }>(
         '/v1/notifications/verify-webhook-signature',

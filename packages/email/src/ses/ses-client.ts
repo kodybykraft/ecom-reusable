@@ -75,6 +75,6 @@ export class SesClient {
   }
 
   getConfig() {
-    return { ...this.config };
+    return { region: this.config.region, fromEmail: this.config.fromEmail, fromName: this.config.fromName };
   }
 }

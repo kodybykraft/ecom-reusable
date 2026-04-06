@@ -29,7 +29,7 @@ async function deriveKey(password: string, salt: Uint8Array): Promise<ArrayBuffe
     ['deriveBits'],
   );
   return crypto.subtle.deriveBits(
-    { name: 'PBKDF2', salt: salt as BufferSource, iterations: 100_000, hash: 'SHA-256' },
+    { name: 'PBKDF2', salt: salt as BufferSource, iterations: 600_000, hash: 'SHA-256' },
     keyMaterial,
     256,
   );
@@ -48,7 +48,13 @@ async function verifyPassword(password: string, hash: string): Promise<boolean> 
   const salt = fromHex(saltHex);
   const derived = await deriveKey(password, salt);
   const computed = toHex(derived);
-  return computed === derivedHex;
+  // Constant-time comparison to prevent timing attacks
+  if (computed.length !== derivedHex.length) return false;
+  let diff = 0;
+  for (let i = 0; i < computed.length; i++) {
+    diff |= computed.charCodeAt(i) ^ derivedHex.charCodeAt(i);
+  }
+  return diff === 0;
 }
 
 function generateToken(): string {
@@ -78,7 +84,7 @@ export class AuthService implements AuthAdapter {
       .values({
         email: input.email,
         passwordHash,
-        role: input.role ?? 'customer',
+        role: 'customer', // Always customer — admin/staff created via admin API only
         firstName: input.firstName ?? null,
         lastName: input.lastName ?? null,
       })

@@ -27,8 +27,8 @@ export default function LoginPage() {
         throw new Error(data.error?.message || data.message || 'Invalid email or password');
       }
 
-      const data = await res.json();
-      localStorage.setItem('ecom_admin_token', data.token);
+      await res.json();
+      // Token is set as HttpOnly cookie by the server response — no localStorage needed
       router.push('/admin');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');

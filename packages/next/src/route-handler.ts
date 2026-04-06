@@ -1,8 +1,26 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { handleError, getStatusCode } from '@ecom/server';
+import { handleError, getStatusCode, RateLimiter } from '@ecom/server';
 import { getEcom } from './create-ecom.js';
+import type { Ecom } from './create-ecom.js';
 import { handleAdminRequest } from './admin-handlers.js';
+
+const authRateLimiter = new RateLimiter({ windowMs: 60_000, maxRequests: 10 });
+
+async function authenticateRequest(request: NextRequest, ecom: Ecom) {
+  const authHeader = request.headers.get('authorization');
+  const cookieToken = request.cookies?.get('ecom_token')?.value;
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : cookieToken;
+  if (!token) return null;
+  return ecom.auth.validateToken(token);
+}
+
+function unauthorizedResponse() {
+  return NextResponse.json(
+    { error: { code: 'UNAUTHORIZED', message: 'Authentication required', statusCode: 401 } },
+    { status: 401 },
+  );
+}
 
 function getSegments(request: NextRequest): string[] {
   const ecom = getEcom();
@@ -76,14 +94,18 @@ async function handleGET(request: NextRequest) {
       return NextResponse.json(cart);
     }
 
-    // GET /orders
+    // GET /orders — requires auth, scoped to customer
     if (parts[0] === 'orders' && !parts[1]) {
-      const orders = await ecom.orders.list();
+      const user = await authenticateRequest(request, ecom);
+      if (!user) return unauthorizedResponse();
+      const orders = await ecom.orders.list({ customerId: user.id } as any);
       return NextResponse.json(orders);
     }
 
-    // GET /orders/[id]
+    // GET /orders/[id] — requires auth
     if (parts[0] === 'orders' && parts[1]) {
+      const user = await authenticateRequest(request, ecom);
+      if (!user) return unauthorizedResponse();
       const order = await ecom.orders.getById(parts[1]);
       return NextResponse.json(order);
     }
@@ -105,6 +127,18 @@ async function handlePOST(request: NextRequest) {
     }
 
     const ecom = getEcom();
+
+    // Rate limit auth endpoints (10 req/min per IP)
+    if (parts[0] === 'auth') {
+      const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+      const { allowed } = authRateLimiter.check(`auth:${ip}`);
+      if (!allowed) {
+        return NextResponse.json(
+          { error: { code: 'RATE_LIMITED', message: 'Too many requests. Try again later.', statusCode: 429 } },
+          { status: 429 },
+        );
+      }
+    }
 
     // POST /analytics/track — receive client-side analytics events
     if (parts[0] === 'analytics' && parts[1] === 'track') {
@@ -137,6 +171,9 @@ async function handlePOST(request: NextRequest) {
     // POST /checkout/[id]/complete
     if (parts[0] === 'checkout' && parts[1] && parts[2] === 'complete') {
       const checkout = await ecom.checkout.complete(parts[1]);
+      if ((checkout as any).status === 'completed') {
+        return NextResponse.json({ error: { code: 'ALREADY_COMPLETED', message: 'Checkout already completed', statusCode: 400 } }, { status: 400 });
+      }
       const order = await ecom.orders.createFromCheckout(checkout as Parameters<typeof ecom.orders.createFromCheckout>[0]);
       return NextResponse.json(order, { status: 201 });
     }
@@ -149,10 +186,18 @@ async function handlePOST(request: NextRequest) {
         return NextResponse.json({ error: { code: 'NOT_CONFIGURED', message: 'Built-in auth is not enabled', statusCode: 501 } }, { status: 501 });
       }
       const result = await ecom.auth.login(email, password);
-      return NextResponse.json(result);
+      const response = NextResponse.json(result);
+      response.cookies.set('ecom_token', result.token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/',
+        maxAge: 30 * 24 * 60 * 60, // 30 days
+      });
+      return response;
     }
 
-    // POST /auth/register
+    // POST /auth/register — role always forced to 'customer'
     if (parts[0] === 'auth' && parts[1] === 'register') {
       const body = await request.json();
       const { email, password, firstName, lastName } = body;
@@ -169,8 +214,11 @@ async function handlePOST(request: NextRequest) {
       if (!ecom.auth.logout) {
         return NextResponse.json({ error: { code: 'NOT_CONFIGURED', message: 'Built-in auth is not enabled', statusCode: 501 } }, { status: 501 });
       }
-      await ecom.auth.logout(body.token);
-      return NextResponse.json({ success: true });
+      const cookieToken = request.cookies?.get('ecom_token')?.value;
+      await ecom.auth.logout(body.token ?? cookieToken);
+      const response = NextResponse.json({ success: true });
+      response.cookies.set('ecom_token', '', { httpOnly: true, secure: true, sameSite: 'strict', path: '/', maxAge: 0 });
+      return response;
     }
 
     return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Route not found', statusCode: 404 } }, { status: 404 });

@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { orders, orderLineItems, customers, returns, checkouts, cartItems, productVariants } from '@ecom/db';
 import type { Database } from '@ecom/db';
-import { formatMoney } from '@ecom/core';
+import { formatMoney, escapeHtml } from '@ecom/core';
 import type { SesClient } from '../ses/ses-client.js';
 import type { TemplateService } from '../templates/template-service.js';
 
@@ -62,7 +62,7 @@ export class TransactionalEmailService {
     const lineItemsHtml = order.lineItems
       .map(
         (li) =>
-          `<tr><td style="padding:8px;border-bottom:1px solid #eee">${li.title} - ${li.variantTitle}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:center">${li.quantity}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right">${formatMoney(li.price * li.quantity)}</td></tr>`,
+          `<tr><td style="padding:8px;border-bottom:1px solid #eee">${escapeHtml(li.title)} - ${escapeHtml(li.variantTitle)}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:center">${li.quantity}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right">${formatMoney(li.price * li.quantity)}</td></tr>`,
       )
       .join('');
 

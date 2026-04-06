@@ -164,6 +164,10 @@ export class StripeProvider implements PaymentProvider {
       const timestamp = tPart.substring(2);
       const expectedSig = v1Part.substring(3);
 
+      // Reject requests older than 5 minutes (replay protection)
+      const now = Math.floor(Date.now() / 1000);
+      if (Math.abs(now - parseInt(timestamp, 10)) > 300) return false;
+
       const encoder = new TextEncoder();
       const key = await crypto.subtle.importKey(
         'raw',

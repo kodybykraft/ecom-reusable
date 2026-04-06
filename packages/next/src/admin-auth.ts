@@ -16,12 +16,20 @@ export interface AdminUser {
  */
 export async function requireAdmin(request: Request): Promise<AdminUser> {
   const authHeader = request.headers.get('authorization');
+  const cookieHeader = request.headers.get('cookie');
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    throw new UnauthorizedError('Missing or invalid Authorization header');
+  // Extract token from Authorization header or HttpOnly cookie
+  let token: string | null = null;
+  if (authHeader?.startsWith('Bearer ')) {
+    token = authHeader.slice(7);
+  } else if (cookieHeader) {
+    const match = cookieHeader.match(/ecom_token=([^;]+)/);
+    if (match) token = match[1];
   }
 
-  const token = authHeader.slice(7); // strip "Bearer "
+  if (!token) {
+    throw new UnauthorizedError('Missing or invalid Authorization header');
+  }
   const ecom = getEcom();
   const user = await ecom.auth.validateToken(token);
 

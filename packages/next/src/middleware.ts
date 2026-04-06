@@ -26,7 +26,15 @@ export function createEcomMiddleware(options?: EcomMiddlewareOptions) {
       }
     }
 
-    // /admin/* pages — allow through, auth enforced client-side
+    // /admin/* pages — require auth token (cookie or header)
+    if (pathname.startsWith(adminBase)) {
+      const token = request.cookies.get('ecom_token')?.value;
+      const authHeader = request.headers.get('authorization');
+      if (!token && !authHeader?.startsWith('Bearer ')) {
+        return NextResponse.redirect(new URL('/auth/login', request.url));
+      }
+    }
+
     return NextResponse.next();
   };
 }
