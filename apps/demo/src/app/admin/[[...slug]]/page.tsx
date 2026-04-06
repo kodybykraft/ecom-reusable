@@ -10,14 +10,8 @@ import { ORDERS, PRODUCTS, CUSTOMERS } from './_pages/_data';
 import { ActivityLogPage } from './_pages/activity-log';
 import { AbandonedCheckoutsPage, AbandonedCheckoutDetailPage } from './_pages/abandoned-checkouts';
 import { WebhooksPage, WebhookFormPage, WebhookDetailPage } from './_pages/webhooks';
-import { CategoriesPage, CategoryFormPage, CollectionsPage, CollectionFormPage } from './_pages/categories';
 import { StaffListPage, StaffFormPage } from './_pages/staff';
 import { SettingsGeneralPage, SettingsPaymentsPage, SettingsShippingPage, SettingsTaxPage, SettingsStaffPage, SettingsCheckoutPage } from './_pages/settings-extended';
-
-// Tier 3 pages
-import { InventoryDashboardPage, InventoryBulkEditorPage, InventoryAdjustmentHistoryPage, InventoryLocationFormPage } from './_pages/inventory';
-import { ReturnsListPage, ReturnDetailPage, CreateReturnPage } from './_pages/returns';
-import { DraftOrdersListPage, DraftOrderFormPage } from './_pages/drafts';
 import { ImportExportPage, ImportFormPage, ExportFormPage } from './_pages/import-export';
 
 // Email marketing pages
@@ -29,6 +23,10 @@ import { OrdersListClient, OrderDetailClient } from './_pages/orders-client';
 import { ProductsListClient, ProductFormClient } from './_pages/products-client';
 import { CustomersListClient, CustomerDetailClient } from './_pages/customers-client';
 import { DiscountsListClient, DiscountFormClient } from './_pages/discounts-client';
+import { InventoryDashboardClient, InventoryBulkEditorClient, InventoryAdjustmentHistoryClient } from './_pages/inventory-client';
+import { ReturnsListClient, ReturnDetailClient, CreateReturnClient } from './_pages/returns-client';
+import { DraftOrdersListClient, DraftOrderFormClient } from './_pages/drafts-client';
+import { CategoriesListClient, CategoryFormClient, CollectionsListClient, CollectionFormClient } from './_pages/categories-client';
 
 export const dynamic = 'force-dynamic';
 
@@ -234,15 +232,15 @@ function renderPage(slug?: string[]) {
 
     // --- Drafts ---
     case 'drafts':
-      if (sub === 'new') return <DraftOrderFormPage />;
-      if (sub) return <DraftOrderFormPage id={sub} />;
-      return <DraftOrdersListPage />;
+      if (sub === 'new') return <DraftOrderFormClient draft={null} />;
+      if (sub) return <DraftOrderFormClient draft={{ id: sub } as any} />;
+      return <DraftOrdersListClient />;
 
     // --- Returns ---
     case 'returns':
-      if (sub === 'new') return <CreateReturnPage />;
-      if (sub) return <ReturnDetailPage id={sub} />;
-      return <ReturnsListPage />;
+      if (sub === 'new') return <CreateReturnClient />;
+      if (sub) return <ReturnDetailClient />;
+      return <ReturnsListClient />;
 
     // --- Abandoned Checkouts ---
     case 'abandoned-checkouts':
@@ -257,23 +255,21 @@ function renderPage(slug?: string[]) {
 
     // --- Categories ---
     case 'categories':
-      if (sub === 'new') return <CategoryFormPage />;
-      if (sub) return <CategoryFormPage id={sub} />;
-      return <CategoriesPage />;
+      if (sub === 'new') return <CategoryFormClient category={null} />;
+      if (sub) return <CategoryFormClient category={null} />;
+      return <CategoriesListClient />;
 
     // --- Collections ---
     case 'collections':
-      if (sub === 'new') return <CollectionFormPage />;
-      if (sub) return <CollectionFormPage id={sub} />;
-      return <CollectionsPage />;
+      if (sub === 'new') return <CollectionFormClient collection={null} />;
+      if (sub) return <CollectionFormClient collection={null} />;
+      return <CollectionsListClient />;
 
     // --- Inventory ---
     case 'inventory':
-      if (sub === 'bulk-edit') return <InventoryBulkEditorPage />;
-      if (sub === 'adjustments') return <InventoryAdjustmentHistoryPage />;
-      if (sub === 'locations' && sub2 === 'new') return <InventoryLocationFormPage />;
-      if (sub === 'locations' && sub2) return <InventoryLocationFormPage id={sub2} />;
-      return <InventoryDashboardPage />;
+      if (sub === 'bulk-edit') return <InventoryBulkEditorClient />;
+      if (sub === 'adjustments') return <InventoryAdjustmentHistoryClient />;
+      return <InventoryDashboardClient />;
 
     // --- Customers ---
     case 'customers':
