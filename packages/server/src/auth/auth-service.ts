@@ -3,6 +3,7 @@ import { users, sessions } from '@ecom/db';
 import type { Database } from '@ecom/db';
 import { UnauthorizedError, ValidationError } from '@ecom/core';
 import type { User } from '../context.js';
+import type { AuthAdapter, AuthUser } from './auth-adapter.js';
 
 function toHex(buffer: ArrayBufferLike): string {
   return Array.from(new Uint8Array(buffer))
@@ -54,7 +55,7 @@ function generateToken(): string {
   return crypto.randomUUID() + '-' + crypto.randomUUID();
 }
 
-export class AuthService {
+export class AuthService implements AuthAdapter {
   constructor(private db: Database) {}
 
   async register(input: {

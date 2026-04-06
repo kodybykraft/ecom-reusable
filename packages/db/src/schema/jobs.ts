@@ -3,7 +3,7 @@ import { relations } from 'drizzle-orm';
 import { users } from './users.js';
 
 export const importJobs = pgTable(
-  'import_jobs',
+  'ecom_import_jobs',
   {
     id: text('id')
       .primaryKey()
@@ -23,12 +23,12 @@ export const importJobs = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
   (table) => [
-    index('import_jobs_status_idx').on(table.status),
+    index('ecom_import_jobs_status_idx').on(table.status),
   ],
 );
 
 export const exportJobs = pgTable(
-  'export_jobs',
+  'ecom_export_jobs',
   {
     id: text('id')
       .primaryKey()
@@ -45,7 +45,7 @@ export const exportJobs = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
   (table) => [
-    index('export_jobs_status_idx').on(table.status),
+    index('ecom_export_jobs_status_idx').on(table.status),
   ],
 );
 

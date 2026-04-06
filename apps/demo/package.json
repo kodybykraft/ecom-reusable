@@ -10,16 +10,19 @@
     "clean": "rm -rf .next .turbo"
   },
   "dependencies": {
+    "@ecom/admin": "workspace:*",
     "@ecom/core": "workspace:*",
     "@ecom/db": "workspace:*",
-    "@ecom/server": "workspace:*",
-    "@ecom/react": "workspace:*",
     "@ecom/next": "workspace:*",
-    "@ecom/admin": "workspace:*",
+    "@ecom/react": "workspace:*",
+    "@ecom/server": "workspace:*",
     "@ecom/ui": "workspace:*",
+    "@tailwindcss/postcss": "^4.2.2",
     "next": "^15.0.0",
+    "postcss": "^8.5.8",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4.2.2"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",

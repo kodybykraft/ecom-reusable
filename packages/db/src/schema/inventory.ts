@@ -4,7 +4,7 @@ import { productVariants } from './products.js';
 import { users } from './users.js';
 
 export const inventoryLocations = pgTable(
-  'inventory_locations',
+  'ecom_inventory_locations',
   {
     id: text('id')
       .primaryKey()
@@ -18,7 +18,7 @@ export const inventoryLocations = pgTable(
 );
 
 export const inventoryLevels = pgTable(
-  'inventory_levels',
+  'ecom_inventory_levels',
   {
     id: text('id')
       .primaryKey()
@@ -35,13 +35,13 @@ export const inventoryLevels = pgTable(
     updatedAt: timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date()),
   },
   (table) => [
-    unique('inventory_level_unique').on(table.locationId, table.variantId),
-    index('inventory_levels_variant_id_idx').on(table.variantId),
+    unique('ecom_inventory_level_unique').on(table.locationId, table.variantId),
+    index('ecom_inventory_levels_variant_id_idx').on(table.variantId),
   ],
 );
 
 export const inventoryAdjustments = pgTable(
-  'inventory_adjustments',
+  'ecom_inventory_adjustments',
   {
     id: text('id')
       .primaryKey()
@@ -61,8 +61,8 @@ export const inventoryAdjustments = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
   (table) => [
-    index('inventory_adjustments_variant_id_idx').on(table.variantId),
-    index('inventory_adjustments_created_at_idx').on(table.createdAt),
+    index('ecom_inventory_adjustments_variant_id_idx').on(table.variantId),
+    index('ecom_inventory_adjustments_created_at_idx').on(table.createdAt),
   ],
 );
 

@@ -15,3 +15,6 @@ export { RevenueQueries } from './queries/revenue-queries.js';
 // Attribution
 export { AttributionEngine } from './attribution/attribution-engine.js';
 export type { AttributionModel, AttributionResult } from './attribution/attribution-engine.js';
+
+// Third-party integrations
+export * from './third-party/index.js';

@@ -4,7 +4,7 @@ import { orders } from './orders.js';
 import { customers } from './customers.js';
 
 export const discounts = pgTable(
-  'discounts',
+  'ecom_discounts',
   {
     id: text('id')
       .primaryKey()
@@ -26,13 +26,13 @@ export const discounts = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
   (table) => [
-    index('discounts_code_idx').on(table.code),
-    index('discounts_is_active_idx').on(table.isActive),
+    index('ecom_discounts_code_idx').on(table.code),
+    index('ecom_discounts_is_active_idx').on(table.isActive),
   ],
 );
 
 export const discountUsages = pgTable(
-  'discount_usages',
+  'ecom_discount_usages',
   {
     id: text('id')
       .primaryKey()
@@ -47,8 +47,8 @@ export const discountUsages = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
   (table) => [
-    index('discount_usages_discount_id_idx').on(table.discountId),
-    unique('discount_usage_unique').on(table.discountId, table.orderId),
+    index('ecom_discount_usages_discount_id_idx').on(table.discountId),
+    unique('ecom_discount_usage_unique').on(table.discountId, table.orderId),
   ],
 );
 

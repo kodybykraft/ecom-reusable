@@ -1,7 +1,7 @@
 import { pgTable, text, varchar, boolean, jsonb, integer, timestamp, index } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
-export const webhooks = pgTable('webhooks', {
+export const webhooks = pgTable('ecom_webhooks', {
   id: text('id')
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
@@ -13,7 +13,7 @@ export const webhooks = pgTable('webhooks', {
 });
 
 export const webhookDeliveries = pgTable(
-  'webhook_deliveries',
+  'ecom_webhook_deliveries',
   {
     id: text('id')
       .primaryKey()
@@ -27,7 +27,7 @@ export const webhookDeliveries = pgTable(
     responseBody: text('response_body'),
     deliveredAt: timestamp('delivered_at').notNull().defaultNow(),
   },
-  (table) => [index('deliveries_webhook_id_idx').on(table.webhookId)],
+  (table) => [index('ecom_deliveries_webhook_id_idx').on(table.webhookId)],
 );
 
 export const webhooksRelations = relations(webhooks, ({ many }) => ({

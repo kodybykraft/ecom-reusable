@@ -1,6 +1,6 @@
 import { pgTable, text, varchar, jsonb } from 'drizzle-orm/pg-core';
 
-export const storeSettings = pgTable('store_settings', {
+export const storeSettings = pgTable('ecom_store_settings', {
   id: text('id')
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),

@@ -4,7 +4,7 @@ import { carts } from './carts.js';
 import { customers } from './customers.js';
 
 export const checkouts = pgTable(
-  'checkouts',
+  'ecom_checkouts',
   {
     id: text('id')
       .primaryKey()
@@ -31,9 +31,9 @@ export const checkouts = pgTable(
       .$onUpdate(() => new Date()),
   },
   (table) => [
-    index('checkouts_cart_id_idx').on(table.cartId),
-    index('checkouts_customer_id_idx').on(table.customerId),
-    index('checkouts_status_idx').on(table.status),
+    index('ecom_checkouts_cart_id_idx').on(table.cartId),
+    index('ecom_checkouts_customer_id_idx').on(table.customerId),
+    index('ecom_checkouts_status_idx').on(table.status),
   ],
 );
 

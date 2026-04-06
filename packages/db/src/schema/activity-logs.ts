@@ -3,7 +3,7 @@ import { relations } from 'drizzle-orm';
 import { users } from './users.js';
 
 export const activityLogs = pgTable(
-  'activity_logs',
+  'ecom_activity_logs',
   {
     id: text('id')
       .primaryKey()
@@ -17,9 +17,9 @@ export const activityLogs = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
   (table) => [
-    index('activity_logs_user_id_idx').on(table.userId),
-    index('activity_logs_resource_idx').on(table.resourceType, table.resourceId),
-    index('activity_logs_created_at_idx').on(table.createdAt),
+    index('ecom_activity_logs_user_id_idx').on(table.userId),
+    index('ecom_activity_logs_resource_idx').on(table.resourceType, table.resourceId),
+    index('ecom_activity_logs_created_at_idx').on(table.createdAt),
   ],
 );
 

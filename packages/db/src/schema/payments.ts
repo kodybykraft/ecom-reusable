@@ -4,7 +4,7 @@ import { customers } from './customers.js';
 import { orders } from './orders.js';
 
 export const paymentMethods = pgTable(
-  'payment_methods',
+  'ecom_payment_methods',
   {
     id: text('id')
       .primaryKey()
@@ -21,11 +21,11 @@ export const paymentMethods = pgTable(
     isDefault: boolean('is_default').notNull().default(false),
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
-  (table) => [index('payment_methods_customer_id_idx').on(table.customerId)],
+  (table) => [index('ecom_payment_methods_customer_id_idx').on(table.customerId)],
 );
 
 export const paymentIntents = pgTable(
-  'payment_intents',
+  'ecom_payment_intents',
   {
     id: text('id')
       .primaryKey()
@@ -44,8 +44,8 @@ export const paymentIntents = pgTable(
       .$onUpdate(() => new Date()),
   },
   (table) => [
-    index('payment_intents_order_id_idx').on(table.orderId),
-    index('payment_intents_provider_intent_idx').on(table.providerIntentId),
+    index('ecom_payment_intents_order_id_idx').on(table.orderId),
+    index('ecom_payment_intents_provider_intent_idx').on(table.providerIntentId),
   ],
 );
 

@@ -2,7 +2,7 @@ import { pgTable, text, varchar, boolean, timestamp, index } from 'drizzle-orm/p
 import { relations } from 'drizzle-orm';
 
 export const users = pgTable(
-  'users',
+  'ecom_users',
   {
     id: text('id')
       .primaryKey()
@@ -16,11 +16,11 @@ export const users = pgTable(
     lastLoginAt: timestamp('last_login_at'),
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
-  (table) => [index('users_email_idx').on(table.email)],
+  (table) => [index('ecom_users_email_idx').on(table.email)],
 );
 
 export const sessions = pgTable(
-  'sessions',
+  'ecom_sessions',
   {
     id: text('id')
       .primaryKey()
@@ -33,13 +33,13 @@ export const sessions = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
   (table) => [
-    index('sessions_token_idx').on(table.token),
-    index('sessions_user_id_idx').on(table.userId),
+    index('ecom_sessions_token_idx').on(table.token),
+    index('ecom_sessions_user_id_idx').on(table.userId),
   ],
 );
 
 export const staffPermissions = pgTable(
-  'staff_permissions',
+  'ecom_staff_permissions',
   {
     id: text('id')
       .primaryKey()
@@ -51,7 +51,7 @@ export const staffPermissions = pgTable(
     action: varchar('action', { length: 20 }).notNull(), // create, read, update, delete
     isAllowed: boolean('is_allowed').notNull().default(true),
   },
-  (table) => [index('permissions_user_id_idx').on(table.userId)],
+  (table) => [index('ecom_permissions_user_id_idx').on(table.userId)],
 );
 
 // Relations

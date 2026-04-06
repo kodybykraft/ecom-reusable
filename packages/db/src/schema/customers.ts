@@ -2,7 +2,7 @@ import { pgTable, text, varchar, boolean, jsonb, timestamp, index } from 'drizzl
 import { relations } from 'drizzle-orm';
 
 export const customers = pgTable(
-  'customers',
+  'ecom_customers',
   {
     id: text('id')
       .primaryKey()
@@ -16,12 +16,12 @@ export const customers = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
   (table) => [
-    index('customers_email_idx').on(table.email),
+    index('ecom_customers_email_idx').on(table.email),
   ],
 );
 
 export const customerAddresses = pgTable(
-  'customer_addresses',
+  'ecom_customer_addresses',
   {
     id: text('id')
       .primaryKey()
@@ -44,7 +44,7 @@ export const customerAddresses = pgTable(
     isDefault: boolean('is_default').notNull().default(false),
   },
   (table) => [
-    index('addresses_customer_id_idx').on(table.customerId),
+    index('ecom_addresses_customer_id_idx').on(table.customerId),
   ],
 );
 

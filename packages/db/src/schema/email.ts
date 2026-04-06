@@ -3,7 +3,7 @@ import { relations } from 'drizzle-orm';
 import { customers } from './customers.js';
 
 export const emailContacts = pgTable(
-  'email_contacts',
+  'ecom_email_contacts',
   {
     id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
     email: varchar('email', { length: 255 }).notNull().unique(),
@@ -15,10 +15,10 @@ export const emailContacts = pgTable(
     unsubscribedAt: timestamp('unsubscribed_at'),
     metadata: jsonb('metadata'),
   },
-  (table) => [index('contacts_email_idx').on(table.email), index('contacts_status_idx').on(table.status)],
+  (table) => [index('ecom_contacts_email_idx').on(table.email), index('ecom_contacts_status_idx').on(table.status)],
 );
 
-export const emailLists = pgTable('email_lists', {
+export const emailLists = pgTable('ecom_email_lists', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
@@ -29,16 +29,16 @@ export const emailLists = pgTable('email_lists', {
 });
 
 export const emailListContacts = pgTable(
-  'email_list_contacts',
+  'ecom_email_list_contacts',
   {
     listId: text('list_id').notNull().references(() => emailLists.id, { onDelete: 'cascade' }),
     contactId: text('contact_id').notNull().references(() => emailContacts.id, { onDelete: 'cascade' }),
     addedAt: timestamp('added_at').notNull().defaultNow(),
   },
-  (table) => [primaryKey({ columns: [table.listId, table.contactId] }), index('list_contacts_contact_id_idx').on(table.contactId)],
+  (table) => [primaryKey({ columns: [table.listId, table.contactId] }), index('ecom_list_contacts_contact_id_idx').on(table.contactId)],
 );
 
-export const emailSegments = pgTable('email_segments', {
+export const emailSegments = pgTable('ecom_email_segments', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
@@ -48,7 +48,7 @@ export const emailSegments = pgTable('email_segments', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
-export const emailTemplates = pgTable('email_templates', {
+export const emailTemplates = pgTable('ecom_email_templates', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   name: varchar('name', { length: 255 }).notNull(),
   subject: varchar('subject', { length: 500 }).notNull(),
@@ -61,7 +61,7 @@ export const emailTemplates = pgTable('email_templates', {
 });
 
 export const emailCampaigns = pgTable(
-  'email_campaigns',
+  'ecom_email_campaigns',
   {
     id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
     name: varchar('name', { length: 255 }).notNull(),
@@ -78,11 +78,11 @@ export const emailCampaigns = pgTable(
     stats: jsonb('stats').$type<{ sent: number; delivered: number; opened: number; clicked: number; bounced: number; complained: number; unsubscribed: number }>(),
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
-  (table) => [index('campaigns_status_idx').on(table.status)],
+  (table) => [index('ecom_campaigns_status_idx').on(table.status)],
 );
 
 export const emailCampaignSends = pgTable(
-  'email_campaign_sends',
+  'ecom_email_campaign_sends',
   {
     id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
     campaignId: text('campaign_id').notNull().references(() => emailCampaigns.id, { onDelete: 'cascade' }),
@@ -93,10 +93,10 @@ export const emailCampaignSends = pgTable(
     openedAt: timestamp('opened_at'),
     clickedAt: timestamp('clicked_at'),
   },
-  (table) => [index('sends_campaign_id_idx').on(table.campaignId)],
+  (table) => [index('ecom_sends_campaign_id_idx').on(table.campaignId)],
 );
 
-export const emailAutomations = pgTable('email_automations', {
+export const emailAutomations = pgTable('ecom_email_automations', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   name: varchar('name', { length: 255 }).notNull(),
   triggerEvent: varchar('trigger_event', { length: 100 }).notNull(),
@@ -106,7 +106,7 @@ export const emailAutomations = pgTable('email_automations', {
 });
 
 export const emailAutomationSteps = pgTable(
-  'email_automation_steps',
+  'ecom_email_automation_steps',
   {
     id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
     automationId: text('automation_id').notNull().references(() => emailAutomations.id, { onDelete: 'cascade' }),
@@ -115,11 +115,11 @@ export const emailAutomationSteps = pgTable(
     config: jsonb('config').$type<{ templateId?: string; delayMinutes?: number; conditions?: unknown }>().notNull(),
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
-  (table) => [index('steps_automation_id_idx').on(table.automationId)],
+  (table) => [index('ecom_steps_automation_id_idx').on(table.automationId)],
 );
 
 export const emailAutomationEnrollments = pgTable(
-  'email_automation_enrollments',
+  'ecom_email_automation_enrollments',
   {
     id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
     automationId: text('automation_id').notNull().references(() => emailAutomations.id, { onDelete: 'cascade' }),
@@ -129,17 +129,17 @@ export const emailAutomationEnrollments = pgTable(
     enrolledAt: timestamp('enrolled_at').notNull().defaultNow(),
     completedAt: timestamp('completed_at'),
   },
-  (table) => [index('enrollments_automation_id_idx').on(table.automationId)],
+  (table) => [index('ecom_enrollments_automation_id_idx').on(table.automationId)],
 );
 
-export const emailSuppressionList = pgTable('email_suppression_list', {
+export const emailSuppressionList = pgTable('ecom_email_suppression_list', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   email: varchar('email', { length: 255 }).notNull().unique(),
   reason: varchar('reason', { length: 30 }).notNull(), // bounce, complaint, manual
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
-export const emailDomainSettings = pgTable('email_domain_settings', {
+export const emailDomainSettings = pgTable('ecom_email_domain_settings', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   domain: varchar('domain', { length: 255 }).notNull().unique(),
   dkimVerified: boolean('dkim_verified').notNull().default(false),

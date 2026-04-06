@@ -4,7 +4,7 @@ import { customers } from './customers.js';
 import { orders } from './orders.js';
 
 export const analyticsEvents = pgTable(
-  'analytics_events',
+  'ecom_analytics_events',
   {
     id: text('id')
       .primaryKey()
@@ -21,15 +21,15 @@ export const analyticsEvents = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
   (table) => [
-    index('events_event_name_idx').on(table.eventName),
-    index('events_session_id_idx').on(table.sessionId),
-    index('events_visitor_id_idx').on(table.visitorId),
-    index('events_created_at_idx').on(table.createdAt),
+    index('ecom_events_event_name_idx').on(table.eventName),
+    index('ecom_events_session_id_idx').on(table.sessionId),
+    index('ecom_events_visitor_id_idx').on(table.visitorId),
+    index('ecom_events_created_at_idx').on(table.createdAt),
   ],
 );
 
 export const analyticsSessions = pgTable(
-  'analytics_sessions',
+  'ecom_analytics_sessions',
   {
     id: text('id')
       .primaryKey()
@@ -54,13 +54,13 @@ export const analyticsSessions = pgTable(
     eventsCount: integer('events_count').notNull().default(0),
   },
   (table) => [
-    index('sessions_visitor_id_idx').on(table.visitorId),
-    index('sessions_started_at_idx').on(table.startedAt),
+    index('ecom_sessions_visitor_id_idx').on(table.visitorId),
+    index('ecom_sessions_started_at_idx').on(table.startedAt),
   ],
 );
 
 export const analyticsDailyAggregates = pgTable(
-  'analytics_daily_aggregates',
+  'ecom_analytics_daily_aggregates',
   {
     id: text('id')
       .primaryKey()
@@ -72,12 +72,12 @@ export const analyticsDailyAggregates = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
   (table) => [
-    index('aggregates_date_metric_idx').on(table.date, table.metricKey),
+    index('ecom_aggregates_date_metric_idx').on(table.date, table.metricKey),
   ],
 );
 
 export const attributionTouchpoints = pgTable(
-  'attribution_touchpoints',
+  'ecom_attribution_touchpoints',
   {
     id: text('id')
       .primaryKey()
@@ -93,8 +93,8 @@ export const attributionTouchpoints = pgTable(
     touchedAt: timestamp('touched_at').notNull().defaultNow(),
   },
   (table) => [
-    index('touchpoints_visitor_id_idx').on(table.visitorId),
-    index('touchpoints_order_id_idx').on(table.orderId),
+    index('ecom_touchpoints_visitor_id_idx').on(table.visitorId),
+    index('ecom_touchpoints_order_id_idx').on(table.orderId),
   ],
 );
 

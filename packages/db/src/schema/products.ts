@@ -2,7 +2,7 @@ import { pgTable, text, timestamp, jsonb, integer, varchar, index } from 'drizzl
 import { relations } from 'drizzle-orm';
 
 export const products = pgTable(
-  'products',
+  'ecom_products',
   {
     id: text('id')
       .primaryKey()
@@ -19,13 +19,13 @@ export const products = pgTable(
       .$onUpdate(() => new Date()),
   },
   (table) => [
-    index('products_slug_idx').on(table.slug),
-    index('products_status_idx').on(table.status),
+    index('ecom_products_slug_idx').on(table.slug),
+    index('ecom_products_status_idx').on(table.status),
   ],
 );
 
 export const productVariants = pgTable(
-  'product_variants',
+  'ecom_product_variants',
   {
     id: text('id')
       .primaryKey()
@@ -46,13 +46,13 @@ export const productVariants = pgTable(
     options: jsonb('options').$type<Record<string, string>>().default({}),
   },
   (table) => [
-    index('variants_product_id_idx').on(table.productId),
-    index('variants_sku_idx').on(table.sku),
+    index('ecom_variants_product_id_idx').on(table.productId),
+    index('ecom_variants_sku_idx').on(table.sku),
   ],
 );
 
 export const productImages = pgTable(
-  'product_images',
+  'ecom_product_images',
   {
     id: text('id')
       .primaryKey()
@@ -65,10 +65,10 @@ export const productImages = pgTable(
     altText: varchar('alt_text', { length: 255 }),
     position: integer('position').notNull().default(0),
   },
-  (table) => [index('images_product_id_idx').on(table.productId)],
+  (table) => [index('ecom_images_product_id_idx').on(table.productId)],
 );
 
-export const productOptions = pgTable('product_options', {
+export const productOptions = pgTable('ecom_product_options', {
   id: text('id')
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),

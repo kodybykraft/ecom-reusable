@@ -1,7 +1,7 @@
 import { pgTable, text, varchar, integer, numeric, boolean, index } from 'drizzle-orm/pg-core';
 
 export const taxRates = pgTable(
-  'tax_rates',
+  'ecom_tax_rates',
   {
     id: text('id')
       .primaryKey()
@@ -15,6 +15,6 @@ export const taxRates = pgTable(
     isShipping: boolean('is_shipping').notNull().default(false),
   },
   (table) => [
-    index('tax_rates_country_idx').on(table.country),
+    index('ecom_tax_rates_country_idx').on(table.country),
   ],
 );

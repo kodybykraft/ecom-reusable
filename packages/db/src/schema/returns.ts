@@ -5,7 +5,7 @@ import { customers } from './customers.js';
 import { users } from './users.js';
 
 export const returnReasons = pgTable(
-  'return_reasons',
+  'ecom_return_reasons',
   {
     id: text('id')
       .primaryKey()
@@ -19,7 +19,7 @@ export const returnReasons = pgTable(
 );
 
 export const returns = pgTable(
-  'returns',
+  'ecom_returns',
   {
     id: text('id')
       .primaryKey()
@@ -41,14 +41,14 @@ export const returns = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
   (table) => [
-    index('returns_order_id_idx').on(table.orderId),
-    index('returns_status_idx').on(table.status),
-    index('returns_created_at_idx').on(table.createdAt),
+    index('ecom_returns_order_id_idx').on(table.orderId),
+    index('ecom_returns_status_idx').on(table.status),
+    index('ecom_returns_created_at_idx').on(table.createdAt),
   ],
 );
 
 export const returnLineItems = pgTable(
-  'return_line_items',
+  'ecom_return_line_items',
   {
     id: text('id')
       .primaryKey()
@@ -68,7 +68,7 @@ export const returnLineItems = pgTable(
     restock: boolean('restock').notNull().default(true),
   },
   (table) => [
-    index('return_line_items_return_id_idx').on(table.returnId),
+    index('ecom_return_line_items_return_id_idx').on(table.returnId),
   ],
 );
 

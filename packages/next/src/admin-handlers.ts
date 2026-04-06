@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { requireAdmin } from '@ecom/next';
+import { requireAdmin } from './admin-auth.js';
+import { getEcom } from './create-ecom.js';
 import { handleError, getStatusCode } from '@ecom/server';
 
 function parsePagination(url: URL) {
@@ -19,7 +20,7 @@ export async function handleAdminRequest(
   try {
     await requireAdmin(request);
 
-    const { ecom } = await import('../../../lib/ecom');
+    const ecom = getEcom();
     const url = new URL(request.url);
     const pagination = parsePagination(url);
 

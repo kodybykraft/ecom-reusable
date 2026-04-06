@@ -4,7 +4,7 @@ import { customers } from './customers.js';
 import { productVariants } from './products.js';
 
 export const carts = pgTable(
-  'carts',
+  'ecom_carts',
   {
     id: text('id')
       .primaryKey()
@@ -22,13 +22,13 @@ export const carts = pgTable(
       .$onUpdate(() => new Date()),
   },
   (table) => [
-    index('carts_customer_id_idx').on(table.customerId),
-    index('carts_status_idx').on(table.status),
+    index('ecom_carts_customer_id_idx').on(table.customerId),
+    index('ecom_carts_status_idx').on(table.status),
   ],
 );
 
 export const cartItems = pgTable(
-  'cart_items',
+  'ecom_cart_items',
   {
     id: text('id')
       .primaryKey()
@@ -43,7 +43,7 @@ export const cartItems = pgTable(
     metadata: jsonb('metadata'),
   },
   (table) => [
-    index('cart_items_cart_id_idx').on(table.cartId),
+    index('ecom_cart_items_cart_id_idx').on(table.cartId),
   ],
 );
 

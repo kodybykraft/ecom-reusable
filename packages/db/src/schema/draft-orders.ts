@@ -6,7 +6,7 @@ import { productVariants } from './products.js';
 import { users } from './users.js';
 
 export const draftOrders = pgTable(
-  'draft_orders',
+  'ecom_draft_orders',
   {
     id: text('id')
       .primaryKey()
@@ -29,12 +29,12 @@ export const draftOrders = pgTable(
     updatedAt: timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date()),
   },
   (table) => [
-    index('draft_orders_status_idx').on(table.status),
+    index('ecom_draft_orders_status_idx').on(table.status),
   ],
 );
 
 export const draftOrderLineItems = pgTable(
-  'draft_order_line_items',
+  'ecom_draft_order_line_items',
   {
     id: text('id')
       .primaryKey()
@@ -53,7 +53,7 @@ export const draftOrderLineItems = pgTable(
     discount: jsonb('discount'),
   },
   (table) => [
-    index('draft_order_line_items_draft_order_id_idx').on(table.draftOrderId),
+    index('ecom_draft_order_line_items_draft_order_id_idx').on(table.draftOrderId),
   ],
 );
 

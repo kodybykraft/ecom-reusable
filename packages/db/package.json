@@ -1,7 +1,7 @@
 {
   "name": "@ecom/db",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.1.0",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -19,6 +19,10 @@
     "db:seed": "tsx src/seed.ts",
     "clean": "rm -rf dist .turbo tsconfig.tsbuildinfo"
   },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": ["dist", "README.md"],
   "dependencies": {
     "@ecom/core": "workspace:*",
     "drizzle-orm": "^0.38.0",

@@ -3,7 +3,7 @@ import { relations } from 'drizzle-orm';
 import { products } from './products.js';
 
 export const categories = pgTable(
-  'categories',
+  'ecom_categories',
   {
     id: text('id')
       .primaryKey()
@@ -15,13 +15,13 @@ export const categories = pgTable(
     position: integer('position').notNull().default(0),
   },
   (table) => [
-    index('categories_slug_idx').on(table.slug),
-    index('categories_parent_id_idx').on(table.parentId),
+    index('ecom_categories_slug_idx').on(table.slug),
+    index('ecom_categories_parent_id_idx').on(table.parentId),
   ],
 );
 
 export const productCategories = pgTable(
-  'product_categories',
+  'ecom_product_categories',
   {
     productId: text('product_id')
       .notNull()
@@ -34,7 +34,7 @@ export const productCategories = pgTable(
 );
 
 export const collections = pgTable(
-  'collections',
+  'ecom_collections',
   {
     id: text('id')
       .primaryKey()
@@ -47,11 +47,11 @@ export const collections = pgTable(
     publishedAt: timestamp('published_at'),
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
-  (table) => [index('collections_slug_idx').on(table.slug)],
+  (table) => [index('ecom_collections_slug_idx').on(table.slug)],
 );
 
 export const collectionProducts = pgTable(
-  'collection_products',
+  'ecom_collection_products',
   {
     collectionId: text('collection_id')
       .notNull()

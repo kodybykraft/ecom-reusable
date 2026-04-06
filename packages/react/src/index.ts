@@ -8,3 +8,7 @@ export { useProduct } from './hooks/use-product.js';
 export { useAuth } from './hooks/use-auth.js';
 export { useCheckout } from './hooks/use-checkout.js';
 export { useOrders } from './hooks/use-orders.js';
+
+// Analytics
+export { EcomAnalytics } from './components/ecom-analytics.js';
+export { useAnalytics } from './hooks/use-analytics.js';

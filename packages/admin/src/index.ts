@@ -54,5 +54,7 @@ export { ToastProvider, useToast } from './components/toast.js';
 
 export { TableSkeleton, CardSkeleton, FormSkeleton } from './components/loading-skeleton.js';
 
+export { ErrorBoundary } from './components/error-boundary.js';
+
 // Utils
 export { adminRoutes } from './utils/admin-routes.js';

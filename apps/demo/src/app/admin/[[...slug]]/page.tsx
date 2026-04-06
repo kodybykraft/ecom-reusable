@@ -16,6 +16,7 @@ import { SettingsGeneralClient, SettingsPaymentsClient, SettingsShippingClient, 
 import { StaffListClient, StaffFormClient } from './_pages/staff-client';
 import { AnalyticsClient } from './_pages/analytics-client';
 import { ActivityLogClient, AbandonedCheckoutsClient, ImportExportClient } from './_pages/remaining-client';
+import { PageWrapper } from './_pages/page-wrapper';
 
 // Interactive client components
 import { DashboardClient } from './_pages/dashboard-client';
@@ -207,7 +208,7 @@ export default async function AdminCatchAll({ params }: { params: Promise<{ slug
     <>
       <Sidebar currentPath={path} />
       <Topbar />
-      <main className="admin-main">{renderPage(slug)}</main>
+      <main className="admin-main"><PageWrapper>{renderPage(slug)}</PageWrapper></main>
       <MobileTabBar currentPath={path} />
     </>
   );

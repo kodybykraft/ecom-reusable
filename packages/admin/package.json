@@ -1,7 +1,7 @@
 {
   "name": "@ecom/admin",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.1.0",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -21,8 +21,12 @@
     "@ecom/ui": "workspace:*",
     "@ecom/react": "workspace:*"
   },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": ["dist", "README.md"],
   "peerDependencies": {
-    "react": "^19.0.0"
+    "react": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",

@@ -4,6 +4,7 @@ export type { User, RequestContext } from './context.js';
 
 // Auth
 export { AuthService } from './auth/auth-service.js';
+export type { AuthAdapter, AuthUser } from './auth/auth-adapter.js';
 export { PermissionService } from './auth/permission-service.js';
 export type { Resource, Action } from './auth/permission-service.js';
 

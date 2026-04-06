@@ -5,7 +5,7 @@ import { checkouts } from './checkouts.js';
 import { productVariants } from './products.js';
 
 export const orders = pgTable(
-  'orders',
+  'ecom_orders',
   {
     id: text('id')
       .primaryKey()
@@ -29,15 +29,15 @@ export const orders = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
   (table) => [
-    index('orders_customer_id_idx').on(table.customerId),
-    index('orders_financial_status_idx').on(table.financialStatus),
-    index('orders_fulfillment_status_idx').on(table.fulfillmentStatus),
-    index('orders_created_at_idx').on(table.createdAt),
+    index('ecom_orders_customer_id_idx').on(table.customerId),
+    index('ecom_orders_financial_status_idx').on(table.financialStatus),
+    index('ecom_orders_fulfillment_status_idx').on(table.fulfillmentStatus),
+    index('ecom_orders_created_at_idx').on(table.createdAt),
   ],
 );
 
 export const orderLineItems = pgTable(
-  'order_line_items',
+  'ecom_order_line_items',
   {
     id: text('id')
       .primaryKey()
@@ -57,12 +57,12 @@ export const orderLineItems = pgTable(
     taxLines: jsonb('tax_lines').$type<Array<{ title: string; rate: number; amount: number }>>().default([]),
   },
   (table) => [
-    index('line_items_order_id_idx').on(table.orderId),
+    index('ecom_line_items_order_id_idx').on(table.orderId),
   ],
 );
 
 export const orderTransactions = pgTable(
-  'order_transactions',
+  'ecom_order_transactions',
   {
     id: text('id')
       .primaryKey()
@@ -80,7 +80,7 @@ export const orderTransactions = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
   (table) => [
-    index('transactions_order_id_idx').on(table.orderId),
+    index('ecom_transactions_order_id_idx').on(table.orderId),
   ],
 );
 
