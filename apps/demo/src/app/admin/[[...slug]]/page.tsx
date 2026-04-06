@@ -1,21 +1,21 @@
-import { formatMoney } from '@ecom/core';
-
 // Shared components
-import { PageHeader, StatsGrid, StatCard, Card } from './_pages/_shared';
+import { PageHeader } from './_pages/_shared';
 
 // Shared mock data
 import { ORDERS, PRODUCTS, CUSTOMERS } from './_pages/_data';
 
-// Tier 2 pages
-import { ActivityLogPage } from './_pages/activity-log';
-import { AbandonedCheckoutsPage, AbandonedCheckoutDetailPage } from './_pages/abandoned-checkouts';
-import { WebhooksPage, WebhookFormPage, WebhookDetailPage } from './_pages/webhooks';
-import { StaffListPage, StaffFormPage } from './_pages/staff';
-import { SettingsGeneralPage, SettingsPaymentsPage, SettingsShippingPage, SettingsTaxPage, SettingsStaffPage, SettingsCheckoutPage } from './_pages/settings-extended';
-import { ImportExportPage, ImportFormPage, ExportFormPage } from './_pages/import-export';
+// Static pages (not yet converted to interactive)
+import { EmailSegmentFormPage, EmailAutomationDetailPage, EmailAutomationFormPage, EmailCampaignDetailPage } from './_pages/email';
+import { AbandonedCheckoutDetailPage } from './_pages/abandoned-checkouts';
+import { ImportFormPage, ExportFormPage } from './_pages/import-export';
 
-// Email marketing pages
-import { EmailOverviewPage, EmailContactsPage, EmailSegmentListPage, EmailSegmentFormPage, EmailTemplatesPage, EmailTemplateFormPage, EmailCampaignsPage, EmailCampaignFormPage, EmailCampaignDetailPage, EmailAutomationsPage, EmailAutomationDetailPage, EmailAutomationFormPage, EmailDeliverabilityPage } from './_pages/email';
+// Interactive client components — Sprint 5
+import { EmailOverviewClient, EmailContactsClient, EmailCampaignsClient, EmailCampaignFormClient, EmailTemplatesClient, EmailTemplateFormClient, EmailAutomationsClient, EmailSegmentsClient, EmailDeliverabilityClient } from './_pages/email-client';
+import { WebhooksListClient, WebhookFormClient, WebhookDetailClient } from './_pages/webhooks-client';
+import { SettingsGeneralClient, SettingsPaymentsClient, SettingsShippingClient, SettingsTaxClient, SettingsCheckoutClient, SettingsStaffClient } from './_pages/settings-client';
+import { StaffListClient, StaffFormClient } from './_pages/staff-client';
+import { AnalyticsClient } from './_pages/analytics-client';
+import { ActivityLogClient, AbandonedCheckoutsClient, ImportExportClient } from './_pages/remaining-client';
 
 // Interactive client components
 import { DashboardClient } from './_pages/dashboard-client';
@@ -245,7 +245,7 @@ function renderPage(slug?: string[]) {
     // --- Abandoned Checkouts ---
     case 'abandoned-checkouts':
       if (sub) return <AbandonedCheckoutDetailPage id={sub} />;
-      return <AbandonedCheckoutsPage />;
+      return <AbandonedCheckoutsClient />;
 
     // --- Products ---
     case 'products':
@@ -277,7 +277,7 @@ function renderPage(slug?: string[]) {
       return <CustomersListClient />;
 
     // --- Analytics ---
-    case 'analytics': return <AnalyticsPage />;
+    case 'analytics': return <AnalyticsClient />;
 
     // --- Discounts ---
     case 'discounts':
@@ -286,47 +286,47 @@ function renderPage(slug?: string[]) {
 
     // --- Email Marketing ---
     case 'email':
-      if (!sub) return <EmailOverviewPage />;
-      if (sub === 'contacts') return <EmailContactsPage />;
+      if (!sub) return <EmailOverviewClient />;
+      if (sub === 'contacts') return <EmailContactsClient />;
       if (sub === 'segments' && sub2 === 'new') return <EmailSegmentFormPage />;
       if (sub === 'segments' && sub2) return <EmailSegmentFormPage id={sub2} />;
-      if (sub === 'segments') return <EmailSegmentListPage />;
-      if (sub === 'templates' && sub2 === 'new') return <EmailTemplateFormPage />;
-      if (sub === 'templates' && sub2) return <EmailTemplateFormPage id={sub2} />;
-      if (sub === 'templates') return <EmailTemplatesPage />;
-      if (sub === 'campaigns' && sub2 === 'new') return <EmailCampaignFormPage />;
+      if (sub === 'segments') return <EmailSegmentsClient />;
+      if (sub === 'templates' && sub2 === 'new') return <EmailTemplateFormClient />;
+      if (sub === 'templates' && sub2) return <EmailTemplateFormClient />;
+      if (sub === 'templates') return <EmailTemplatesClient />;
+      if (sub === 'campaigns' && sub2 === 'new') return <EmailCampaignFormClient />;
       if (sub === 'campaigns' && sub2) return <EmailCampaignDetailPage id={sub2} />;
-      if (sub === 'campaigns') return <EmailCampaignsPage />;
+      if (sub === 'campaigns') return <EmailCampaignsClient />;
       if (sub === 'automations' && sub2 === 'new') return <EmailAutomationFormPage />;
       if (sub === 'automations' && sub2) return <EmailAutomationDetailPage id={sub2} />;
-      if (sub === 'automations') return <EmailAutomationsPage />;
-      if (sub === 'deliverability') return <EmailDeliverabilityPage />;
-      return <EmailOverviewPage />;
+      if (sub === 'automations') return <EmailAutomationsClient />;
+      if (sub === 'deliverability') return <EmailDeliverabilityClient />;
+      return <EmailOverviewClient />;
 
     // --- Import/Export ---
     case 'import-export':
       if (sub === 'import') return <ImportFormPage />;
       if (sub === 'export') return <ExportFormPage />;
-      return <ImportExportPage />;
+      return <ImportExportClient />;
 
     // --- Activity Log ---
-    case 'activity-log': return <ActivityLogPage />;
+    case 'activity-log': return <ActivityLogClient />;
 
     // --- Webhooks ---
     case 'webhooks':
-      if (sub === 'new') return <WebhookFormPage />;
-      if (sub) return <WebhookDetailPage id={sub} />;
-      return <WebhooksPage />;
+      if (sub === 'new') return <WebhookFormClient />;
+      if (sub) return <WebhookDetailClient id={sub} />;
+      return <WebhooksListClient />;
 
     // --- Settings ---
     case 'settings':
       return <SettingsLayout sub={sub} />;
 
-    // --- Staff (from settings) ---
+    // --- Staff ---
     case 'staff':
-      if (sub === 'new') return <StaffFormPage />;
-      if (sub) return <StaffFormPage id={sub} />;
-      return <StaffListPage />;
+      if (sub === 'new') return <StaffFormClient />;
+      if (sub) return <StaffFormClient />;
+      return <StaffListClient />;
 
     default: return <NotFound />;
   }
@@ -352,12 +352,12 @@ function SettingsLayout({ sub }: { sub?: string }) {
 
   function content() {
     switch (sub) {
-      case 'payments': return <SettingsPaymentsPage />;
-      case 'checkout': return <SettingsCheckoutPage />;
-      case 'shipping': return <SettingsShippingPage />;
-      case 'taxes': return <SettingsTaxPage />;
-      case 'staff': return <SettingsStaffPage />;
-      default: return <SettingsGeneralPage />;
+      case 'payments': return <SettingsPaymentsClient />;
+      case 'checkout': return <SettingsCheckoutClient />;
+      case 'shipping': return <SettingsShippingClient />;
+      case 'taxes': return <SettingsTaxClient />;
+      case 'staff': return <SettingsStaffClient />;
+      default: return <SettingsGeneralClient />;
     }
   }
 
@@ -401,22 +401,4 @@ function OrderDetailPage({ order: o }: { order: typeof ORDERS[0] }) {
 
 // DiscountsPage + DiscountFormPage replaced by client components
 
-function AnalyticsPage() {
-  const totalSales = ORDERS.filter(o => o.payment === 'paid').reduce((s, o) => s + o.total, 0);
-  const paidOrders = ORDERS.filter(o => o.payment === 'paid');
-  return (
-    <div>
-      <PageHeader title="Analytics" actions={<><a href="#" className="admin-btn admin-btn--outline">Last 7 days</a><a href="#" className="admin-btn admin-btn--outline">Export</a></>} />
-      <StatsGrid>
-        <StatCard label="Total sales" value={formatMoney(totalSales)} />
-        <StatCard label="Online store sessions" value="2,847" />
-        <StatCard label="Returning customers" value="38%" />
-        <StatCard label="Avg order value" value={formatMoney(paidOrders.length > 0 ? Math.round(totalSales / paidOrders.length) : 0)} />
-      </StatsGrid>
-      <div className="admin-grid-2">
-        <Card title="Sales over time"><div style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-text-muted)', borderRadius: 'var(--admin-radius)', background: 'var(--admin-border-light)' }}>Chart placeholder — integrate Recharts</div></Card>
-        <Card title="Top referrers"><table className="admin-table"><thead><tr><th>Source</th><th style={{ textAlign: 'right' }}>Sessions</th><th style={{ textAlign: 'right' }}>Orders</th></tr></thead><tbody><tr><td>Direct</td><td style={{ textAlign: 'right' }}>1,240</td><td style={{ textAlign: 'right' }}>42</td></tr><tr><td>Google</td><td style={{ textAlign: 'right' }}>680</td><td style={{ textAlign: 'right' }}>28</td></tr><tr><td>Instagram</td><td style={{ textAlign: 'right' }}>420</td><td style={{ textAlign: 'right' }}>15</td></tr><tr><td>Facebook</td><td style={{ textAlign: 'right' }}>310</td><td style={{ textAlign: 'right' }}>8</td></tr></tbody></table></Card>
-      </div>
-    </div>
-  );
-}
+// AnalyticsPage replaced by AnalyticsClient
