@@ -82,7 +82,7 @@ function Sidebar({ currentPath }: { currentPath: string }) {
   return (
     <aside className="admin-sidebar">
       {NAV.map((group, gi) => (
-        <div key={gi} style={{ marginBottom: '4px' }}>
+        <div key={gi}>
           {group.items.map((item) => {
             const active = currentPath === item.path || (item.path !== '/admin' && currentPath.startsWith(item.path));
             return (
