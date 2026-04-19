@@ -19,13 +19,17 @@
   "publishConfig": {
     "access": "public"
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "dependencies": {
     "@aws-sdk/client-sesv2": "^3.700.0",
     "@ecom/core": "workspace:*",
     "@ecom/db": "workspace:*",
     "@ecom/integrations": "workspace:*",
-    "drizzle-orm": "^0.38.0"
+    "drizzle-orm": "^0.38.0",
+    "resend": "^6.12.0"
   },
   "devDependencies": {
     "typescript": "^5.7.0"

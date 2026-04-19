@@ -1,0 +1,10 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "pnpm install --frozen-lockfile && pnpm --filter=@ecom/db build && pnpm --filter=@ecom/core build && pnpm --filter=@ecom/server build && pnpm --filter=@ecom/email build && pnpm --filter=@ecom/react build && pnpm --filter=@ecom/ui build && pnpm --filter=@ecom/analytics build && pnpm --filter=@ecom/integrations build && pnpm --filter=@ecom/next build && pnpm --filter=@ecom/stay-savage build"
+
+[deploy]
+startCommand = "cd apps/stay-savage && pnpm start"
+healthcheckPath = "/"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3

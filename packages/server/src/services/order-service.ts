@@ -110,9 +110,29 @@ export class OrderService {
     return this.getById(order.id);
   }
 
-  async updateFulfillmentStatus(id: string, status: 'unfulfilled' | 'partial' | 'fulfilled') {
-    await this.getById(id);
-    await this.db.update(orders).set({ fulfillmentStatus: status }).where(eq(orders.id, id));
+  async updateFulfillmentStatus(
+    id: string,
+    status: 'unfulfilled' | 'partial' | 'fulfilled',
+    tracking?: { carrier?: string; trackingNumber?: string; trackingUrl?: string; notes?: string },
+  ) {
+    const existing = await this.getById(id);
+    const update: Record<string, unknown> = { fulfillmentStatus: status };
+
+    if (tracking) {
+      const existingMetadata = (existing.metadata as Record<string, unknown> | null) ?? {};
+      update.metadata = {
+        ...existingMetadata,
+        fulfillment: {
+          carrier: tracking.carrier,
+          trackingNumber: tracking.trackingNumber,
+          trackingUrl: tracking.trackingUrl,
+          notes: tracking.notes,
+          fulfilledAt: new Date().toISOString(),
+        },
+      };
+    }
+
+    await this.db.update(orders).set(update).where(eq(orders.id, id));
     if (status === 'fulfilled') {
       await eventBus.emit('order.fulfilled', { orderId: id });
     }

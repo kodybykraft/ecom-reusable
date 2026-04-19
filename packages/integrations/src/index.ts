@@ -19,3 +19,7 @@ export type { ManualShippingConfig } from './shipping/manual/manual-shipping-pro
 // Tax providers
 export { ManualTaxProvider } from './tax/manual/manual-tax-provider.js';
 export type { ManualTaxConfig } from './tax/manual/manual-tax-provider.js';
+
+// Storage providers
+export { R2Provider } from './storage/r2/r2-provider.js';
+export type { R2Config } from './storage/r2/r2-provider.js';

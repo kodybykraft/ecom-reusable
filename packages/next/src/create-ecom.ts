@@ -23,8 +23,12 @@ import {
   AnalyticsQueryService,
   StaffService,
   AbandonedCheckoutService,
+  ShippingService,
+  TaxService,
+  ProductImageService,
   eventBus,
 } from '@ecom/server';
+import type { StorageLike } from '@ecom/server';
 
 export interface AnalyticsConfig {
   google?: { measurementId: string; apiSecret?: string };
@@ -32,14 +36,30 @@ export interface AnalyticsConfig {
   tiktok?: { pixelId: string; accessToken?: string };
 }
 
-export interface EmailConfig {
-  provider: 'ses';
-  region: string;
-  fromEmail: string;
-  fromName?: string;
+export interface StorageConfig {
+  provider: 'r2';
+  accountId: string;
   accessKeyId: string;
   secretAccessKey: string;
+  bucket: string;
+  publicUrl: string;
 }
+
+export type EmailConfig =
+  | {
+      provider: 'ses';
+      region: string;
+      fromEmail: string;
+      fromName?: string;
+      accessKeyId: string;
+      secretAccessKey: string;
+    }
+  | {
+      provider: 'resend';
+      apiKey: string;
+      fromEmail: string;
+      fromName?: string;
+    };
 
 export interface EcomConfig {
   databaseUrl: string;
@@ -48,6 +68,7 @@ export interface EcomConfig {
   auth?: AuthAdapter;
   analytics?: AnalyticsConfig;
   email?: EmailConfig;
+  storage?: StorageConfig;
 }
 
 export interface Ecom {
@@ -81,10 +102,46 @@ export interface Ecom {
   analyticsQuery: AnalyticsQueryService;
   staff: StaffService;
   abandonedCheckouts: AbandonedCheckoutService;
+  shipping: ShippingService;
+  tax: TaxService;
+  productImages: ProductImageService;
 }
 
 let instance: Ecom | null = null;
 let instanceUrl: string | null = null;
+
+function buildStorage(config?: StorageConfig): StorageLike | undefined {
+  if (!config) return undefined;
+  if (config.provider === 'r2') {
+    let providerPromise: Promise<StorageLike> | null = null;
+    const getProvider = (): Promise<StorageLike> => {
+      if (!providerPromise) {
+        providerPromise = import('@ecom/integrations').then(
+          (m) =>
+            new m.R2Provider({
+              accountId: config.accountId,
+              accessKeyId: config.accessKeyId,
+              secretAccessKey: config.secretAccessKey,
+              bucket: config.bucket,
+              publicUrl: config.publicUrl,
+            }),
+        );
+      }
+      return providerPromise;
+    };
+    return {
+      async upload(input) {
+        const provider = await getProvider();
+        return provider.upload(input);
+      },
+      async delete(key) {
+        const provider = await getProvider();
+        return provider.delete(key);
+      },
+    };
+  }
+  return undefined;
+}
 
 export function createEcom(config: EcomConfig): Ecom {
   if (instance) {
@@ -137,6 +194,9 @@ export function createEcom(config: EcomConfig): Ecom {
     analyticsQuery: new AnalyticsQueryService(db),
     staff: new StaffService(db),
     abandonedCheckouts: new AbandonedCheckoutService(db),
+    shipping: new ShippingService(db),
+    tax: new TaxService(db),
+    productImages: new ProductImageService(db, buildStorage(config.storage)),
   };
 
   // Wire email transactional system (if configured)
@@ -158,13 +218,25 @@ async function initEmail(db: Database, emailConfig: EmailConfig): Promise<void> 
   // Dynamic import — email package is an optional dependency
   const email = await import('@ecom/email');
 
-  const sesClient = new email.SesClient({
-    accessKeyId: emailConfig.accessKeyId,
-    secretAccessKey: emailConfig.secretAccessKey,
-    region: emailConfig.region,
-    fromEmail: emailConfig.fromEmail,
-    fromName: emailConfig.fromName,
-  });
+  // Create the appropriate email transport based on provider
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let mailClient: any;
+
+  if (emailConfig.provider === 'resend') {
+    mailClient = new email.ResendClient({
+      apiKey: emailConfig.apiKey,
+      fromEmail: emailConfig.fromEmail,
+      fromName: emailConfig.fromName,
+    });
+  } else {
+    mailClient = new email.SesClient({
+      accessKeyId: emailConfig.accessKeyId,
+      secretAccessKey: emailConfig.secretAccessKey,
+      region: emailConfig.region,
+      fromEmail: emailConfig.fromEmail,
+      fromName: emailConfig.fromName,
+    });
+  }
 
   const templateService = new email.TemplateService(db);
   const automationService = new email.AutomationService(db);
@@ -177,7 +249,7 @@ async function initEmail(db: Database, emailConfig: EmailConfig): Promise<void> 
   // Create transactional email service
   const txnService = new email.TransactionalEmailService(
     db,
-    sesClient,
+    mailClient,
     templateService,
     emailConfig.fromEmail,
     emailConfig.fromName,
@@ -190,7 +262,7 @@ async function initEmail(db: Database, emailConfig: EmailConfig): Promise<void> 
   }
 
   // Start automation processing loop (every 60s)
-  const executor = new email.AutomationExecutor(db, sesClient, templateService, emailConfig.fromEmail, emailConfig.fromName);
+  const executor = new email.AutomationExecutor(db, mailClient, templateService, emailConfig.fromEmail, emailConfig.fromName);
   setInterval(() => executor.processQueue().catch(console.error), 60_000);
 
   // Start abandoned cart checker (every 5 min)

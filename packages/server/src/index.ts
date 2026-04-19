@@ -27,6 +27,10 @@ export { SettingsService } from './services/settings-service.js';
 export { AnalyticsQueryService } from './services/analytics-query-service.js';
 export { StaffService } from './services/staff-service.js';
 export { AbandonedCheckoutService } from './services/abandoned-checkout-service.js';
+export { ShippingService } from './services/shipping-service.js';
+export { TaxService } from './services/tax-service.js';
+export { ProductImageService } from './services/product-image-service.js';
+export type { StorageLike } from './services/product-image-service.js';
 
 // Middleware
 export { handleError, getStatusCode } from './middleware/error-handler.js';

@@ -125,4 +125,101 @@ export class ProductService {
     await this.db.delete(products).where(eq(products.id, id));
     await eventBus.emit('product.deleted', { productId: id });
   }
+
+  // ---------------------------------------------------------------------------
+  // Variants CRUD
+  // ---------------------------------------------------------------------------
+
+  async createVariant(productId: string, input: {
+    title: string;
+    sku?: string | null;
+    price: number;
+    compareAtPrice?: number | null;
+    costPrice?: number | null;
+    weight?: number | null;
+    weightUnit?: string | null;
+    inventoryQuantity?: number;
+    barcode?: string | null;
+    options?: Record<string, string>;
+  }) {
+    await this.getById(productId);
+
+    // Position = max existing position + 1
+    const existing = await this.db.query.productVariants.findMany({
+      where: eq(productVariants.productId, productId),
+    });
+    const nextPosition = existing.length
+      ? Math.max(...existing.map((v) => v.position ?? 0)) + 1
+      : 0;
+
+    const [variant] = await this.db
+      .insert(productVariants)
+      .values({
+        productId,
+        title: input.title,
+        sku: input.sku ?? null,
+        price: input.price,
+        compareAtPrice: input.compareAtPrice ?? null,
+        costPrice: input.costPrice ?? null,
+        weight: input.weight ?? null,
+        weightUnit: input.weightUnit ?? null,
+        inventoryQuantity: input.inventoryQuantity ?? 0,
+        barcode: input.barcode ?? null,
+        position: nextPosition,
+        options: input.options ?? {},
+      })
+      .returning();
+
+    await eventBus.emit('product.updated', { productId });
+    return variant;
+  }
+
+  async updateVariant(variantId: string, data: {
+    title?: string;
+    sku?: string | null;
+    price?: number;
+    compareAtPrice?: number | null;
+    costPrice?: number | null;
+    weight?: number | null;
+    weightUnit?: string | null;
+    inventoryQuantity?: number;
+    barcode?: string | null;
+    options?: Record<string, string>;
+  }) {
+    const existing = await this.db.query.productVariants.findFirst({
+      where: eq(productVariants.id, variantId),
+    });
+    if (!existing) throw new NotFoundError('ProductVariant', variantId);
+
+    const update: Record<string, unknown> = {};
+    if (data.title !== undefined) update.title = data.title;
+    if (data.sku !== undefined) update.sku = data.sku;
+    if (data.price !== undefined) update.price = data.price;
+    if (data.compareAtPrice !== undefined) update.compareAtPrice = data.compareAtPrice;
+    if (data.costPrice !== undefined) update.costPrice = data.costPrice;
+    if (data.weight !== undefined) update.weight = data.weight;
+    if (data.weightUnit !== undefined) update.weightUnit = data.weightUnit;
+    if (data.inventoryQuantity !== undefined) update.inventoryQuantity = data.inventoryQuantity;
+    if (data.barcode !== undefined) update.barcode = data.barcode;
+    if (data.options !== undefined) update.options = data.options;
+
+    const [updated] = await this.db
+      .update(productVariants)
+      .set(update)
+      .where(eq(productVariants.id, variantId))
+      .returning();
+
+    await eventBus.emit('product.updated', { productId: existing.productId });
+    return updated;
+  }
+
+  async deleteVariant(variantId: string) {
+    const existing = await this.db.query.productVariants.findFirst({
+      where: eq(productVariants.id, variantId),
+    });
+    if (!existing) throw new NotFoundError('ProductVariant', variantId);
+
+    await this.db.delete(productVariants).where(eq(productVariants.id, variantId));
+    await eventBus.emit('product.updated', { productId: existing.productId });
+  }
 }

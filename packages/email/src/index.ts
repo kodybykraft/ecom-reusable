@@ -2,6 +2,10 @@
 export { SesClient } from './ses/ses-client.js';
 export type { SesConfig } from './ses/ses-client.js';
 
+// Resend Client
+export { ResendClient } from './resend/resend-client.js';
+export type { ResendConfig } from './resend/resend-client.js';
+
 // Contacts
 export { ContactService } from './contacts/contact-service.js';
 export { SegmentService } from './contacts/segment-service.js';

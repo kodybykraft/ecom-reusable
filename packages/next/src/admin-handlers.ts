@@ -62,6 +62,18 @@ export async function handleAdminRequest(
         return NextResponse.json(result);
       }
 
+      // GET /admin/products/:id
+      if (segments[0] === 'products' && segments[1] && !segments[2]) {
+        const result = await ecom.products.getById(segments[1]);
+        return NextResponse.json(result);
+      }
+
+      // GET /admin/products/:id/images
+      if (segments[0] === 'products' && segments[1] && segments[2] === 'images' && !segments[3]) {
+        const result = await ecom.productImages.list(segments[1]);
+        return NextResponse.json({ data: result });
+      }
+
       // GET /admin/customers
       if (segments[0] === 'customers' && !segments[1]) {
         const search = url.searchParams.get('search') ?? undefined;
@@ -161,6 +173,15 @@ export async function handleAdminRequest(
         return NextResponse.json(result);
       }
 
+      // GET /admin/stats — dashboard summary (alias for analytics, default 30 days)
+      if (segments[0] === 'stats' && !segments[1]) {
+        const to = new Date();
+        const from = new Date();
+        from.setDate(from.getDate() - 30);
+        const result = await ecom.analyticsQuery.getDashboardStats({ from, to } as any);
+        return NextResponse.json({ data: result });
+      }
+
       // GET /admin/analytics
       if (segments[0] === 'analytics' && !segments[1]) {
         const from = url.searchParams.get('from') ?? undefined;
@@ -188,18 +209,137 @@ export async function handleAdminRequest(
         const result = await ecom.abandonedCheckouts.list(pagination as any);
         return NextResponse.json(result);
       }
+
+      // GET /admin/shipping/zones
+      if (segments[0] === 'shipping' && segments[1] === 'zones' && !segments[2]) {
+        const result = await ecom.shipping.listZones();
+        return NextResponse.json(result);
+      }
+
+      // GET /admin/shipping/zones/:id
+      if (segments[0] === 'shipping' && segments[1] === 'zones' && segments[2] && !segments[3]) {
+        const result = await ecom.shipping.getZoneById(segments[2]);
+        return NextResponse.json(result);
+      }
+
+      // GET /admin/shipping/rates?zoneId=X
+      if (segments[0] === 'shipping' && segments[1] === 'rates' && !segments[2]) {
+        const zoneId = url.searchParams.get('zoneId') ?? undefined;
+        const result = await ecom.shipping.listRates(zoneId);
+        return NextResponse.json(result);
+      }
+
+      // GET /admin/tax-rates
+      if (segments[0] === 'tax-rates' && !segments[1]) {
+        const result = await ecom.tax.list();
+        return NextResponse.json(result);
+      }
+
+      // GET /admin/tax-rates/:id
+      if (segments[0] === 'tax-rates' && segments[1] && !segments[2]) {
+        const result = await ecom.tax.getById(segments[1]);
+        return NextResponse.json(result);
+      }
     }
 
     // -----------------------------------------------------------------------
     // POST
     // -----------------------------------------------------------------------
     if (method === 'POST') {
+      // Multipart routes (handled before JSON body parsing)
+
+      // POST /admin/products/:id/images — multipart file upload
+      if (
+        segments[0] === 'products' &&
+        segments[1] &&
+        segments[2] === 'images' &&
+        !segments[3] &&
+        (request.headers.get('content-type') ?? '').includes('multipart/form-data')
+      ) {
+        const form = await request.formData();
+        const file = form.get('file');
+        if (!(file instanceof Blob)) {
+          return NextResponse.json({ error: { code: 'BAD_REQUEST', message: 'Missing file' } }, { status: 400 });
+        }
+        const fileName = (file as File).name ?? `image-${Date.now()}`;
+        const altText = (form.get('altText') as string) ?? undefined;
+        const arrayBuffer = await file.arrayBuffer();
+        const result = await ecom.productImages.upload({
+          productId: segments[1],
+          fileName,
+          body: new Uint8Array(arrayBuffer),
+          contentType: file.type,
+          altText,
+        });
+        return NextResponse.json(result, { status: 201 });
+      }
+
       const body = await request.json();
+
+      // POST /admin/products/:id/images/by-url — { url, altText? }
+      if (segments[0] === 'products' && segments[1] && segments[2] === 'images' && segments[3] === 'by-url') {
+        const result = await ecom.productImages.addByUrl({ productId: segments[1], ...body });
+        return NextResponse.json(result, { status: 201 });
+      }
+
+      // POST /admin/products/:id/images/reorder — { orderedIds: string[] }
+      if (segments[0] === 'products' && segments[1] && segments[2] === 'images' && segments[3] === 'reorder') {
+        const result = await ecom.productImages.reorder(segments[1], body.orderedIds ?? []);
+        return NextResponse.json(result);
+      }
 
       // POST /admin/products
       if (segments[0] === 'products' && !segments[1]) {
         const result = await ecom.products.create(body);
         return NextResponse.json(result, { status: 201 });
+      }
+
+      // POST /admin/products/:id/variants — body: variant fields
+      if (segments[0] === 'products' && segments[1] && segments[2] === 'variants' && !segments[3]) {
+        const result = await ecom.products.createVariant(segments[1], body);
+        return NextResponse.json(result, { status: 201 });
+      }
+
+      // POST /admin/shipping/zones
+      if (segments[0] === 'shipping' && segments[1] === 'zones' && !segments[2]) {
+        const result = await ecom.shipping.createZone(body);
+        return NextResponse.json(result, { status: 201 });
+      }
+
+      // POST /admin/shipping/zones/:id/rates
+      if (segments[0] === 'shipping' && segments[1] === 'zones' && segments[2] && segments[3] === 'rates') {
+        const result = await ecom.shipping.createRate({ ...body, zoneId: segments[2] });
+        return NextResponse.json(result, { status: 201 });
+      }
+
+      // POST /admin/tax-rates
+      if (segments[0] === 'tax-rates' && !segments[1]) {
+        const result = await ecom.tax.create(body);
+        return NextResponse.json(result, { status: 201 });
+      }
+
+      // POST /admin/orders/:id/fulfill — body: { carrier?, trackingNumber?, trackingUrl?, notes? }
+      if (segments[0] === 'orders' && segments[1] && segments[2] === 'fulfill') {
+        const result = await ecom.orders.updateFulfillmentStatus(segments[1], 'fulfilled', body);
+        return NextResponse.json(result);
+      }
+
+      // POST /admin/orders/:id/cancel
+      if (segments[0] === 'orders' && segments[1] && segments[2] === 'cancel') {
+        const result = await ecom.orders.cancel(segments[1]);
+        return NextResponse.json(result);
+      }
+
+      // POST /admin/orders/:id/refund — body: { amount? } cents. Partial supported.
+      if (segments[0] === 'orders' && segments[1] && segments[2] === 'refund') {
+        if (!ecom.payments) {
+          return NextResponse.json(
+            { error: { code: 'PAYMENTS_DISABLED', message: 'Payment provider not configured' } },
+            { status: 501 },
+          );
+        }
+        const result = await ecom.payments.refundPayment(segments[1], body?.amount);
+        return NextResponse.json(result);
       }
 
       // POST /admin/discounts
@@ -281,6 +421,30 @@ export async function handleAdminRequest(
         return NextResponse.json(result);
       }
 
+      // PATCH /admin/products/:id/variants/:variantId
+      if (segments[0] === 'products' && segments[1] && segments[2] === 'variants' && segments[3]) {
+        const result = await ecom.products.updateVariant(segments[3], body);
+        return NextResponse.json(result);
+      }
+
+      // PATCH /admin/shipping/zones/:id
+      if (segments[0] === 'shipping' && segments[1] === 'zones' && segments[2] && !segments[3]) {
+        const result = await ecom.shipping.updateZone(segments[2], body);
+        return NextResponse.json(result);
+      }
+
+      // PATCH /admin/shipping/rates/:id
+      if (segments[0] === 'shipping' && segments[1] === 'rates' && segments[2] && !segments[3]) {
+        const result = await ecom.shipping.updateRate(segments[2], body);
+        return NextResponse.json(result);
+      }
+
+      // PATCH /admin/tax-rates/:id
+      if (segments[0] === 'tax-rates' && segments[1] && !segments[2]) {
+        const result = await ecom.tax.update(segments[1], body);
+        return NextResponse.json(result);
+      }
+
       // PATCH /admin/discounts/:id
       if (segments[0] === 'discounts' && segments[1] && !segments[2]) {
         const result = await ecom.discounts.update(segments[1], body);
@@ -342,6 +506,36 @@ export async function handleAdminRequest(
       // DELETE /admin/products/:id
       if (segments[0] === 'products' && segments[1] && !segments[2]) {
         await ecom.products.delete(segments[1]);
+        return NextResponse.json({ success: true });
+      }
+
+      // DELETE /admin/products/:id/variants/:variantId
+      if (segments[0] === 'products' && segments[1] && segments[2] === 'variants' && segments[3]) {
+        await ecom.products.deleteVariant(segments[3]);
+        return NextResponse.json({ success: true });
+      }
+
+      // DELETE /admin/products/:id/images/:imageId
+      if (segments[0] === 'products' && segments[1] && segments[2] === 'images' && segments[3]) {
+        await ecom.productImages.delete(segments[3]);
+        return NextResponse.json({ success: true });
+      }
+
+      // DELETE /admin/shipping/zones/:id
+      if (segments[0] === 'shipping' && segments[1] === 'zones' && segments[2] && !segments[3]) {
+        await ecom.shipping.deleteZone(segments[2]);
+        return NextResponse.json({ success: true });
+      }
+
+      // DELETE /admin/shipping/rates/:id
+      if (segments[0] === 'shipping' && segments[1] === 'rates' && segments[2] && !segments[3]) {
+        await ecom.shipping.deleteRate(segments[2]);
+        return NextResponse.json({ success: true });
+      }
+
+      // DELETE /admin/tax-rates/:id
+      if (segments[0] === 'tax-rates' && segments[1] && !segments[2]) {
+        await ecom.tax.delete(segments[1]);
         return NextResponse.json({ success: true });
       }
 
